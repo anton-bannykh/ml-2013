@@ -10,12 +10,13 @@
 Схема работы
 -------------------
 
-Работа с репозиторием ведется по схеме [fork & pull][https://help.github.com/articles/using-pull-requests]
+Работа с репозиторием ведется по схеме [fork & pull][fork-pull]
 
 Структура каталогов: <имя.фамилия> - папка с личными наработками.
 Внутренняя организация оставляется на личное усмотрение.
 
 [ml home]: http://neerc.ifmo.ru/~ml
+[fork-pull]: https://help.github.com/articles/using-pull-requests
 
 Распознавание цифр
 ------------------

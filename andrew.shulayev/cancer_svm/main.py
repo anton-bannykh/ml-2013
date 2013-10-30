@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from sklearn import svm
 from util import *
+from math import log
+from sklearn import svm
 from cancer_common.data import retrieve_data
 
 KERNEL = 'rbf'
@@ -37,6 +38,8 @@ def best_regularization(xs, ys, parts=5):
             best_error = curr_error
             best_C = C
 
+    return best_C
+
 def main(test_fraction=0.1):
     xs, ys = retrieve_data(as_list=True, negative_label=0)
 
@@ -53,6 +56,7 @@ def main(test_fraction=0.1):
         if x != x_pred:
             errors += 1
     print("error on test set: %6.2f%%" % (100 * errors / test_size))
+    print("regularization constant is 1e-%d" % round(log(C, 0.1)))
 
 if __name__ == "__main__":
     main()

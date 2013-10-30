@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 from cancer_common.data import retrieve_data
 from cancer_perceptron.perceptron import *

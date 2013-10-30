@@ -5,6 +5,8 @@ from sklearn import svm
 from util import *
 from cancer_common.data import retrieve_data
 
+KERNEL = 'rbf'
+
 def best_regularization(xs, ys, parts=5):
     splitted_data = list(split(unzip(xs, ys), parts))
 
@@ -19,7 +21,7 @@ def best_regularization(xs, ys, parts=5):
             train_data = append(splitted_data[:i] + splitted_data[i+1:])
 
             xs, ys = zip(*train_data)
-            model = svm.SVC(kernel='rbf', C=C)
+            model = svm.LinearSVC(C=C)
             model.fit(xs, ys)
 
             curr_error = 0.0
@@ -43,11 +45,11 @@ def main(test_fraction=0.1):
     train_xs = xs[:-test_size]
     train_ys = ys[:-test_size]
     C = best_regularization(train_xs, train_ys)
-    model = svm.SVC(kernel='rbf', C=C)
+    model = svm.LinearSVC(C=C)
     model.fit(train_xs, train_ys)
 
     errors = 0
-    for x, x_pred in zip(ys[-test_size:], model.predict(xs[-test_size:])):
+    for x, x_pred in zip(list(ys[-test_size:]), list(model.predict(xs[-test_size:]))):
         if x != x_pred:
             errors += 1
     print("error on test set: %6.2f%%" % (100 * errors / test_size))

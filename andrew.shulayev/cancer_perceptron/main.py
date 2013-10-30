@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from cancer_perceptron.data import retrieve_data
+from cancer_common.data import retrieve_data
 from cancer_perceptron.perceptron import *
 
 def main(test_fraction):

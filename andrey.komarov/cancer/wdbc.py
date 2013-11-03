@@ -2,6 +2,8 @@ import numpy
 import numpy.linalg as lin
 import pylab
 import matplotlib.pyplot as plt
+from sklearn import svm
+from collections import Counter
 
 numpy.random.seed(1234)
 
@@ -38,21 +40,47 @@ ss = f.readlines()
 
 X = numpy.array([list(map(float, s.split(',') [2:])) for s in ss])
 y = numpy.array([1 if s.split(',')[1] == 'M' else -1 for s in ss])
-
 XStudy, yStudy, XTest, yTest = split(X, y, int(0.8 * y.size))
+
+t = {(1, 1) : 'tp', (-1, -1) : 'tn', (1, -1) : 'fn', (-1, 1) : 'fp'}
+c = Counter()
+
+bestC, bestCPrec = None, None
+
+for C in 2. ** numpy.arange(-5, 20):
+    XStudy, yStudy, XTest, yTest = split(X, y, int(0.5 * y.size))
+    classifier = svm.LinearSVC(C = C)
+    classifier.fit(XStudy, yStudy)
+    y1 = classifier.predict(XTest)
+    c = Counter()
+    for (yp, y2) in zip(y1, yTest):
+        c[t[(yp, y2)]] += 1
+    precision = 100 * (c['tp'] + c['tn']) / (sum(c.values()))
+    if bestCPrec == None or precision > bestCPrec:
+        bestC, bestCPrec = C, precision
+    print ("SVM(C=%f) precision: %.3f%%"%(C, precision))
+    print ("SVM(C=%f) recall:    %.3f%%"%(C, 100 * c['tp'] / (c['tp'] + c['fn'])))
+
+print ("best C = %f with precision = %f"%(bestC, bestCPrec))
+
 
 classifier = perceptronClassifier(XStudy, yStudy)
 
-ok = 0
-all = 0
-for (x, y) in zip(XTest, yTest):
-    ok += 1 if y == classifier(x) else 0
-    all += 1
+for (x, y1) in zip(XTest, yTest):
+    y2 = classifier(x)
+    c[t[(y1, y2)]] += 1
 
-print (ok, "of", all, " (%f%%) classified correctly"%(100 * ok / all))
+print ("################################")
+precision = 100 * (c['tp'] + c['tn']) / sum(c.values())
+print ("perceptron precision: %.3f%%"%(precision))
+print ("perceptron recall:    %.3f%%"%(100 * c['tp'] / (c['tp'] + c['fn'])))
+
+
+XStudy, yStudy, XTest, yTest = split(X, y, int(0.5 * y.size))
+classifier =  svm.LinearSVC()
+classifier.fit(XStudy, yStudy)
 
 #a = numpy.array(X)
-#print(a.shape)
 #f = mkPCA(a, 3)
 #
 #xyM = []

@@ -10,7 +10,7 @@ def get_data():
     for line in file.readlines():
         input = line.decode('utf-8').strip().split(',')
 
-        if (input[1] == 'M'):
+        if input[1] == 'M':
             y.append(1)
         else:
             y.append(-1)

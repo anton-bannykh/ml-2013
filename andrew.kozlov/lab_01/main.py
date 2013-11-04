@@ -15,22 +15,21 @@ def load_data():
     return result
 
 
-def main(fraction=0.1):
-    data = load_data()
-
+def constants(data, fraction=0.1):
     test_len = int(len(data) * fraction)
     w = train(data[test_len:])
 
-    stats = {'tp': 0, 'fp': 0, 'fn': 0, 'tn': 0}
+    results = {'fp': 0, 'tp': 0, 'fn': 0, 'tn': 0}
     for (x, y) in data[:test_len]:
         yc = classify(w, x)
 
         if y == 1:
-            stats['tp' if yc == 1 else 'fn'] += 1
+            results['tp' if yc == 1 else 'fn'] += 1
         else:
-            stats['tn' if yc == -1 else 'fp'] += 1
+            results['tn' if yc == -1 else 'fp'] += 1
 
-    return stats['tp'] / (stats['tp'] + stats['fp']), stats['tp'] / (stats['tp'] + stats['fn'])  # (precision, recall)
+    return results['tp'] / (results['tp'] + results['fp']), results['tp'] / (results['tp'] + results['fn'])  # (precision, recall)
 
 if __name__ == "__main__":
-    print('precision = %6.2f\nrecall = %6.2f' % main())
+    p, r = constants(load_data())
+    print('precision = %6.2f\nrecall = %6.2f' % (100 * p, 100 * r))

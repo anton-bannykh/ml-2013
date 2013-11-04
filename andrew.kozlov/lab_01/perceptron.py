@@ -37,9 +37,6 @@ def train(data, n=1000):
             break
 
         x, y = choice(mc)
-        if y == 1:
-            w += y * x
-        else:
-            w -= -y * x
+        w += y * np.array(x)
 
     return best_w

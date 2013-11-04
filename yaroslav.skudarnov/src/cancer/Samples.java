@@ -7,8 +7,8 @@ import java.util.ArrayList;
  * Date: 03.11.13
  * Time: 23:41
  */
-class Samples {
-    static class TestSample {
+public class Samples {
+    public static class TestSample {
         private TestSample() {
             result = new ArrayList<Integer>();
             features = new ArrayList<ArrayList<Double>>();
@@ -16,11 +16,11 @@ class Samples {
 
         public static final TestSample testSample = new TestSample();
 
-        ArrayList<Integer> result;
-        ArrayList<ArrayList<Double>> features;
+        public ArrayList<Integer> result;
+        public ArrayList<ArrayList<Double>> features;
     }
 
-    static class TrainingSample {
+    public static class TrainingSample {
         private TrainingSample() {
             result = new ArrayList<Integer>();
             features = new ArrayList<ArrayList<Double>>();
@@ -28,12 +28,12 @@ class Samples {
 
         public static final TrainingSample trainingSample = new TrainingSample();
 
-        ArrayList<Integer> result;
-        ArrayList<ArrayList<Double>> features;
+        public ArrayList<Integer> result;
+        public ArrayList<ArrayList<Double>> features;
     }
 
-    TestSample testSample;
-    TrainingSample trainingSample;
+    public static TestSample testSample;
+    public static TrainingSample trainingSample;
 
     Samples() {
         testSample = TestSample.testSample;

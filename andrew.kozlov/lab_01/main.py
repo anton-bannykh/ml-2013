@@ -15,12 +15,17 @@ def load_data():
     return result
 
 
-def constants(data, fraction=0.1):
+def divide(data, fraction=0.1):
     test_len = int(len(data) * fraction)
-    w = train(data[test_len:])
+    return data[test_len:], data[:test_len]
+
+
+def constants(data):
+    train_set, test_set = divide(data)
+    w = train(train_set)
 
     results = {'fp': 0, 'tp': 0, 'fn': 0, 'tn': 0}
-    for (x, y) in data[:test_len]:
+    for (x, y) in test_set:
         yc = classify(w, x)
 
         if y == 1:
@@ -28,8 +33,8 @@ def constants(data, fraction=0.1):
         else:
             results['tn' if yc == -1 else 'fp'] += 1
 
-    return results['tp'] / (results['tp'] + results['fp']), results['tp'] / (results['tp'] + results['fn'])  # (precision, recall)
+    return results['tp'] / (results['tp'] + results['fp']), results['tp'] / (results['tp'] + results['fn']), (results['fp'] + results['fn']) / len(test_set)  # (precision, recall, error)
 
 if __name__ == "__main__":
-    p, r = constants(load_data())
-    print('precision = %6.2f\nrecall = %6.2f' % (100 * p, 100 * r))
+    p, r, err = constants(load_data())
+    print('precision = %6.2f\nrecall = %6.2f\nerror = %6.2f' % (100 * p, 100 * r, 100 * err))

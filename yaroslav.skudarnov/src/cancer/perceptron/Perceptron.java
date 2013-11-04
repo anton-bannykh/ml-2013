@@ -14,7 +14,7 @@ public class Perceptron {
     public static final int FEATURES = 30;
     public static int TESTSAMPLESIZE, TRAININGSAMPLESIZE;
     private static int truePositive, falsePositive, trueNegative, falseNegative;
-    private static final int percent = 30;
+    private static final int percent = 40;
 
     static ArrayList<Double> weights;
 
@@ -55,27 +55,28 @@ public class Perceptron {
 
             changing = false;
 
-            for (int i = 0; i < TESTSAMPLESIZE; ++i) {
-                if (wrongClassified(Samples.testSample.result.get(i), weights, Samples.testSample.features.get(i))) {
+            for (int i = 0; i < TRAININGSAMPLESIZE; ++i) {
+                if (wrongClassified(Samples.trainingSample.result.get(i), weights, Samples.trainingSample.features.get(i))) {
                     changing |= true;
-                    weights = add(weights, mul(Samples.testSample.result.get(i), Samples.testSample.features.get(i)));
+                    weights = add(weights, mul(Samples.trainingSample.result.get(i), Samples.trainingSample.features.get(i)));
                 }
             }
 
-            for (int i = 0; i < TESTSAMPLESIZE; ++i) {
-                if (wrongClassified(Samples.testSample.result.get(i), weights, Samples.testSample.features.get(i))) {
+            for (int i = 0; i < TRAININGSAMPLESIZE; ++i) {
+                if (wrongClassified(Samples.trainingSample.result.get(i), weights, Samples.trainingSample.features.get(i))) {
                     ++tmp;
                 }
             }
 
-            if (tmp > bestClassified) {
-                bestClassified = tmp;
+            if (TRAININGSAMPLESIZE - tmp > bestClassified) {
+                bestClassified = TRAININGSAMPLESIZE - tmp;
                 bestWeights = (ArrayList<Double>) weights.clone();
             }
 
-            //System.out.println(bestClassified);
+            System.out.println(bestClassified);
 
-            if (++steps > TESTSAMPLESIZE * FEATURES) {
+            if (++steps > TRAININGSAMPLESIZE * FEATURES) {
+            //if (++steps > 3) {
                 break;
             }
         } while (changing);
@@ -92,11 +93,13 @@ public class Perceptron {
     }
 
     private static ArrayList<Double> mul(int sign, ArrayList<Double> features) {
+        ArrayList<Double> tmp = new ArrayList<Double>(FEATURES);
+
         for (int i = 0; i < FEATURES; ++i) {
-            features.set(i, features.get(i) * sign);
+            tmp.add(features.get(i) * sign);
         }
 
-        return features;
+        return tmp;
     }
 
     private static int algo(ArrayList<Double> weights, ArrayList<Double> features) {
@@ -118,15 +121,15 @@ public class Perceptron {
     }
 
     private static void test() {
-        for (int i = 0; i < TRAININGSAMPLESIZE; ++i) {
-            if (wrongClassified(Samples.trainingSample.result.get(i), weights, Samples.trainingSample.features.get(i))) {
-                if (Samples.trainingSample.result.get(i) == 1) {
+        for (int i = 0; i < TESTSAMPLESIZE; ++i) {
+            if (wrongClassified(Samples.testSample.result.get(i), weights, Samples.testSample.features.get(i))) {
+                if (Samples.testSample.result.get(i) == 1) {
                     ++falseNegative;
                 } else {
                     ++falsePositive;
                 }
             } else {
-                if (Samples.trainingSample.result.get(i) == 1) {
+                if (Samples.testSample.result.get(i) == 1) {
                     ++truePositive;
                 } else {
                     ++trueNegative;
@@ -134,8 +137,12 @@ public class Perceptron {
             }
         }
 
-        System.out.println("***PRECISION: " + (double) truePositive / (truePositive + falsePositive));
-        System.out.println("***RECALL: " + (double) truePositive / (truePositive + falseNegative));
+        double precision = (double) truePositive / (truePositive + falsePositive);
+        double recall = (double) truePositive / (truePositive + falseNegative);
+
+        System.out.println("***PRECISION: " + precision);
+        System.out.println("***RECALL: " + recall);
+        System.out.println("***F1-metric: " + 2 * precision * recall / (precision + recall));
         System.out.println("***FALSE POSITIVE: " + falsePositive);
         System.out.println("***FALSE NEGATIVE: " + falseNegative);
         System.out.println("***TRUE POSITIVE: " + truePositive);

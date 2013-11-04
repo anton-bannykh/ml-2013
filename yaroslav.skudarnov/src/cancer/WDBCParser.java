@@ -38,6 +38,14 @@ public class WDBCParser {
             while (sc.hasNext()) {
                 data.add(sc.nextLine());
             }
+
+            /*for (int i = 0; i < data.size(); ++i) {
+                int j = (int) (Math.random() * data.size());
+
+                String tmp = data.get(i);
+                data.set(i, data.get(j));
+                data.set(j, tmp);
+            }*/
         } catch (MalformedURLException e) {
             System.err.println("Wrong URL!");
             e.printStackTrace();
@@ -56,6 +64,9 @@ public class WDBCParser {
         getData();
 
         samples = new Samples();
+
+        Perceptron.TRAININGSAMPLESIZE = data.size() * percent / 100;
+        Perceptron.TESTSAMPLESIZE = data.size() - Perceptron.TRAININGSAMPLESIZE;
 
         System.out.println("*****DATA IS BEING PARSED*****");
         System.out.println();

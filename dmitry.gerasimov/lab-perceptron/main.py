@@ -39,26 +39,31 @@ data = load_data(DATA_LOCAL_PATH)
 assert len(data) == DATA_SIZE # there should be 569 instances according to the set description
 
 
-def run_all(it, data, initial):
+def run_all(it, data, initial, iterations, verbose = False):
     test_size = int(DATA_SIZE * TEST_SET_FRACTION)
     train_size = DATA_SIZE - test_size
     train_set, test_set = split_data(data, train_size, test_size)
 
-    #stderr.write("Train set size: {}\n".format(train_size))
-    #stderr.write("Test set size: {}\n".format(test_size))
+    if verbose:
+        stderr.write("Train set size: {}\n".format(train_size))
+    if verbose:
+        stderr.write("Test set size: {}\n".format(test_size))
 
     write_data(train_set, TRAIN_SET_PATH)
-    #stderr.write("Train set dumped to the file {}\n".format(TRAIN_SET_PATH))
+    if verbose:
+        stderr.write("Train set dumped to the file {}\n".format(TRAIN_SET_PATH))
     write_data(test_set, TEST_SET_PATH)
-    #stderr.write("Test set dumped to the file {}\n".format(TEST_SET_PATH))
+    if verbose:
+        stderr.write("Test set dumped to the file {}\n".format(TEST_SET_PATH))
 
     theta = initial
 
-    for i in range(TRAINING_ITERATIONS):
+    for i in range(iterations):
         theta = train_perceptron_step(train_set, theta)
-        #test_ans = test_perceptron(test_set, theta)
-        #results = calculate_results(test_set, test_ans)
-        #print("Step {}: classification error is {}%".format(i, calculate_error_rate(results) * 100))
+        if verbose:
+            test_ans = test_perceptron(test_set, theta)
+            results = calculate_results(test_set, test_ans)
+            stderr.write("Step {}: classification error is {}%\n".format(i, calculate_error_rate(results) * 100))
 
     test_ans = test_perceptron(test_set, theta)
     results = calculate_results(test_set, test_ans)
@@ -69,13 +74,15 @@ def run_all(it, data, initial):
 
     return (theta, err_rate, precision, recall)
 
+# random.seed(0) # uncomment to make the program deterministic
+
 cnt = 100
 s = 0.0
 
 for i in range(cnt):
     stderr.write("Running... {}/{}\n".format(i, cnt))
     initial = numpy.zeros(31)
-    theta, err_rate, prec, rec = run_all(cnt, data, initial)
+    theta, err_rate, prec, rec = run_all(cnt, data, initial, TRAINING_ITERATIONS, verbose = False)
     s += err_rate
 
-print("Mean error rate ({} runs) is {}%".format(cnt, s / cnt * 100))
+print("Average error rate ({} runs) is {}%".format(cnt, s / cnt * 100))

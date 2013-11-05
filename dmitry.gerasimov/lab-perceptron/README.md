@@ -13,3 +13,7 @@ Linear perceptron training home assignment
 5. averages error rate over the given number of iteration and prints it out
 
 Current error rate averaged over 100 runs is about 11 %.
+
+You need `python3` and `numpy` to run the program.
+
+Run as `python3 main.py`.

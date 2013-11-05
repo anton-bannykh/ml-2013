@@ -8,6 +8,7 @@ except ImportError:
     from urllib import urlopen
 
 ##get from dataset
+##one more change
 def get_data():
     x, y = [], []
     file = urlopen("http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data")

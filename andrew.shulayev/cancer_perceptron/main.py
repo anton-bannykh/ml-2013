@@ -4,11 +4,16 @@
 from cancer_common.data import retrieve_data
 from cancer_perceptron.perceptron import *
 
+def safe_division(x, y):
+    if y == 0:
+        return 0
+    return x / y
+
 def main(test_fraction):
     xs, ys = retrieve_data()
     test_size = int(len(xs) * test_fraction)
 
-    w = train_perceptron(xs[:-test_size], ys[:-test_size])
+    w = train_perceptron(xs[:-test_size], ys[:-test_size], iters=200000)
 
     # 'tp' — true positive
     # 'tn' — true negative
@@ -24,8 +29,8 @@ def main(test_fraction):
             key = 'tp' if yc == 1 else 'fn'
             stats[key] += 1
 
-    precision = stats['tp'] / (stats['tp'] + stats['fp'])
-    recall = stats['tp'] / (stats['tp'] + stats['fn'])
+    precision = safe_division(stats['tp'], stats['tp'] + stats['fp'])
+    recall = safe_division(stats['tp'], stats['tp'] + stats['fn'])
 
     print('precision = %6.2f' % (100 * precision))
     print('recall    = %6.2f' % (100 * recall))

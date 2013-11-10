@@ -12,6 +12,9 @@ def split(ls, parts):
     for i in range(parts):
         yield ls[i * part_size:(i + 1) * part_size]
 
+def split_data(xs, ys, parts):
+    return list(split(unzip(xs, ys), parts))
+
 def append(args):
     result = []
     for ls in args:

@@ -4,6 +4,7 @@
 from cvxopt import matrix
 from cvxopt.blas import dotu
 from cvxopt.solvers import qp
+from cancer_common.data import retrieve_data
 import numpy as np
 
 def scale(xs, c):
@@ -48,23 +49,27 @@ def dump(*args):
         print()
 
 def main():
-    xs = [[0.0, 0.0], [1.0, 1.0], [1.0, 0.0]]
-    ys = [-1.0, 1.0, 1.0]
+    xs, ys = retrieve_data(as_list=True, negative_label=-1.0, positive_label=1.0)
     C = 0.5
     solution = qp(*get_qp_parameters(xs, ys, linear_kernel, C))
 
-    a = np.array(solution['x']).transpose()[0]
-    X = np.array(xs)
-    w = np.dot(X.transpose(), a * ys)
-
     eps = 1e-5
+
+    a = np.array(solution['x']).transpose()[0]
+    w = np.zeros(len(xs[0]))
+    for ai, xi, yi in zip(list(a), xs, ys):
+        if ai < eps:
+            continue
+        w += yi * ai * np.array(xi)
+
     b = None
     for i, ai in enumerate(a):
         if eps < ai < (C - eps):
             b = ys[i] - np.dot(w, xs[i])
             break
 
-    print(w, b)
+    if b is None:
+        raise Exception("Haven't found any margin vectors, which is weird")
 
 if __name__ == "__main__":
     main()

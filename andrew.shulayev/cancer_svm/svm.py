@@ -20,8 +20,10 @@ def get_qp_parameters(xs, ys, kernel, C):
 
     P = []
     q = []
-    G = [ys]
-    h = [0]
+    G = []
+    h = []
+    A = [ys]
+    b = [0.0]
 
     for i, (x1, y1) in enumerate(zip(xs, ys)):
         q.append(-1.0)
@@ -35,7 +37,7 @@ def get_qp_parameters(xs, ys, kernel, C):
         G.append(scale(base_vector(i, n), -1.0))
         h.append(0.0)
 
-    return [matrix(m) for m in [P, q, transpose(G), [h]]]
+    return [matrix(m) for m in [P, q, transpose(G), [h], transpose(A), b]]
 
 def linear_kernel(xs, ys):
     return dotu(matrix(xs), matrix(ys))
@@ -61,6 +63,8 @@ def main():
         if eps < ai < (C - eps):
             b = ys[i] - np.dot(w, xs[i])
             break
+
+    print(w, b)
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from util import split_data, append, average, unzip
+from util import *
 from cvxopt import matrix
 from cvxopt.blas import dotu
 from cvxopt.solvers import qp, options
@@ -80,7 +80,7 @@ def classify(x, w, b):
     else:
         return -1
 
-def svm_crossvalidate(xs, ys, C, kernel):
+def svm_cross_validate(xs, ys, C, kernel):
     parts = split_data(xs, ys, FOLD_K)
     errors = []
     for i, test_data in enumerate(parts):
@@ -96,12 +96,26 @@ def svm_crossvalidate(xs, ys, C, kernel):
 
     return average(errors)
 
-def main():
+def optimal_regularizer(xs, ys, kernel):
+    best_C, best_result = None, None
+    for i in range(-4, 6):
+        C = 10.0**i
+        result = svm_cross_validate(xs, ys, C, kernel)
+        print('C = %4.1e, error = %5.3f' % (C, result))
+        if best_result is None or result < best_result:
+            best_result = result
+            best_C = C
+    return best_C
+
+def main(train_ratio=0.9):
     options['show_progress'] = False
     xs, ys = retrieve_data(as_list=True, negative_label=-1.0, positive_label=1.0)
-    for i in range(-3, 3):
-        C = 10.0**i
-        print(i, svm_crossvalidate(xs, ys, C, linear_kernel))
+    xs_train, xs_test = split_with_ratio(xs, train_ratio)
+    ys_train, ys_test = split_with_ratio(ys, train_ratio)
+
+    C = optimal_regularizer(xs_train, ys_train, linear_kernel)
+    w, b = train_svm(xs_train, ys_train, C, linear_kernel)
+    print(C)
 
 if __name__ == "__main__":
     main()

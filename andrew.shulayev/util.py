@@ -15,6 +15,10 @@ def split(ls, parts):
 def split_data(xs, ys, parts):
     return list(split(unzip(xs, ys), parts))
 
+def split_with_ratio(ls, ratio=0.5):
+    size = round(len(ls) * ratio)
+    return ls[:size], ls[size:]
+
 def append(args):
     result = []
     for ls in args:

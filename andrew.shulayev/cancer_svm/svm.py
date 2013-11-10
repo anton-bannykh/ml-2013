@@ -13,9 +13,7 @@ def base_vector(i, n):
     return [1.0 if j == i else 0.0 for j in range(n)]
 
 def transpose(ls):
-    result = list(map(list, zip(*ls)))
-    print(result)
-    return result
+    return list(map(list, zip(*ls)))
 
 def get_qp_parameters(xs, ys, kernel, C):
     n = len(xs)
@@ -40,7 +38,6 @@ def get_qp_parameters(xs, ys, kernel, C):
     return [matrix(m) for m in [P, q, transpose(G), [h]]]
 
 def linear_kernel(xs, ys):
-    print(xs, ys)
     return dotu(matrix(xs), matrix(ys))
 
 def dump(*args):
@@ -51,10 +48,19 @@ def dump(*args):
 def main():
     xs = [[0.0, 0.0], [1.0, 1.0], [1.0, 0.0]]
     ys = [-1.0, 1.0, 1.0]
-    solution = qp(*get_qp_parameters(xs, ys, linear_kernel, 0.8))
+    C = 0.5
+    solution = qp(*get_qp_parameters(xs, ys, linear_kernel, C))
 
-    for a in solution['x']:
-        print(a)
+    a = np.array(solution['x']).transpose()[0]
+    X = np.array(xs)
+    w = np.dot(X.transpose(), a * ys)
+
+    eps = 1e-5
+    b = None
+    for i, ai in enumerate(a):
+        if eps < ai < (C - eps):
+            b = ys[i] - np.dot(w, xs[i])
+            break
 
 if __name__ == "__main__":
     main()

@@ -13,7 +13,7 @@ def main(test_fraction):
     xs, ys = retrieve_data()
     test_size = int(len(xs) * test_fraction)
 
-    w = train_perceptron(xs[:-test_size], ys[:-test_size], iters=200000)
+    w = train_perceptron(xs[:-test_size], ys[:-test_size], iters=10000)
 
     # 'tp' — true positive
     # 'tn' — true negative
@@ -31,9 +31,11 @@ def main(test_fraction):
 
     precision = safe_division(stats['tp'], stats['tp'] + stats['fp'])
     recall = safe_division(stats['tp'], stats['tp'] + stats['fn'])
+    f1 = safe_division(2 * precision * recall, precision + recall)
 
-    print('precision = %6.2f' % (100 * precision))
-    print('recall    = %6.2f' % (100 * recall))
+    print('precision  = %6.2f%%' % (100 * precision))
+    print('recall     = %6.2f%%' % (100 * recall))
+    print('F1 measure = %6.2f' % f1)
 
 if __name__ == "__main__":
     main(0.1)

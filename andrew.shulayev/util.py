@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from math import ceil
+from random import shuffle
 
 def unzip(*args):
     return list(zip(*args))
@@ -29,3 +30,16 @@ def average(ls):
     if len(ls) == 0:
         return 0
     return sum(ls) / len(ls)
+
+def apply_permutation(ls, p):
+    return [ls[x] for x in p]
+
+def shuffle_args(*args):
+    n = len(args[0])
+    permutation = list(range(n))
+    return [apply_permutation(x, permutation) for x in args]
+
+def safe_division(x, y):
+    if y == 0:
+        return 0
+    return x / y

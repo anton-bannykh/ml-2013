@@ -3,6 +3,15 @@ from urllib.request import urlopen
 
 URL = "http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
 
+def shuffle(x, y):
+    tmp = list(zip(x, y))
+    numpy.random.shuffle(tmp)
+    x_new = []
+    y_new = []
+    for i in range(len(tmp)):
+        x_new.append(tmp[i][0])
+        y_new.append(tmp[i][1])
+    return x_new, y_new
 
 def get_data():
     x, y = [], []
@@ -20,4 +29,4 @@ def get_data():
         parameters = numpy.array(parameters)
         x.append(parameters)
     file.close()
-    return x, y
+    return shuffle(x, y)

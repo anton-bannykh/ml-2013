@@ -4,18 +4,7 @@ import numpy
 
 TEST_PERCENT = 0.1
 
-def shuffle(x, y):
-    tmp = list(zip(x, y))
-    numpy.random.shuffle(tmp)
-    x_new = []
-    y_new = []
-    for i in range(len(tmp)):
-        x_new.append(tmp[i][0])
-        y_new.append(tmp[i][1])
-    return x_new, y_new
-
 x, y = get_data()
-x, y = shuffle(x, y)
 test_size = int(len(x) * TEST_PERCENT)
 
 w, Ein = train_perceptron(x[test_size:], y[test_size:], 1000)

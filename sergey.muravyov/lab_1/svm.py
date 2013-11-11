@@ -7,6 +7,7 @@ try:
 except ImportError:
     from urllib import urlopen
 
+
 def get_data():
     x, y = [], []
     file = urlopen("http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data")
@@ -18,7 +19,6 @@ def get_data():
         x.append(num)
     file.close()
     return x, y
-
 
 def split(ls, parts):
     n = len(ls)
@@ -39,8 +39,6 @@ def average(ls):
 
 def unzip(*args):
     return list(zip(*args))
-
-
 
 def best_regularization(x, y, parts=5):
     part_size = int(len(x) / parts)

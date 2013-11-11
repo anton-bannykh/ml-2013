@@ -7,8 +7,6 @@ try:
 except ImportError:
     from urllib import urlopen
 
-##get from dataset
-##one more change
 def get_data():
     x, y = [], []
     file = urlopen("http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data")
@@ -20,6 +18,7 @@ def get_data():
         x.append(num)
     file.close()
     return x, y
+
 
 def split(ls, parts):
     n = len(ls)
@@ -41,32 +40,39 @@ def average(ls):
 def unzip(*args):
     return list(zip(*args))
 
-def best_regularization(xs, ys, parts=5):
-    splitted_data = list(split(unzip(xs, ys), parts))
-    best_C, best_error = None, None
-    for deg in range(10):
-        C = 0.1**deg
-        errors = []
+
+
+def best_regularization(x, y, parts=5):
+    part_size = int(len(x) / parts)
+    best_error = 1
+    best_C = 1
+
+    for deg in range(30):
+        const = (1.0 / 3.0) ** (deg)
+        curr_error = 0
+
         for i in range(parts):
-            test_data = splitted_data[i]
-            train_data = append(splitted_data[:i] + splitted_data[i+1:])
+            check_set_x = x[i * part_size: (i + 1) * part_size]
+            check_set_y = y[i * part_size: (i + 1) * part_size]
 
-            xs, ys = zip(*train_data)
-            model = svm.LinearSVC(C=C)
-            model.fit(xs, ys)
+            training_set_x = x[:i * part_size] + x[(i + 1) * part_size:]
+            training_set_y = y[:i * part_size] + y[(i + 1) * part_size:]
 
-            curr_error = 0.0
-            xs, ys = zip(*test_data)
-            predictions = model.predict(xs)
-            for y, y_pred in zip(ys, predictions):
-                if y != y_pred:
-                    curr_error += 1
-            errors.append(curr_error / len(test_data))
+            svmReg = svm.LinearSVC(C=const)
+            svmReg.fit(training_set_x, training_set_y)
 
-        curr_error = average(errors)
-        if best_C is None or best_error > curr_error:
+
+            prediction = svmReg.predict(check_set_x)
+
+            misclassified = 0
+            for j in range(len(check_set_x)):
+                if check_set_y[j] != prediction[j]:
+                    misclassified += 1
+            curr_error += misclassified / len(check_set_x) / parts
+
+        if curr_error < best_error:
             best_error = curr_error
-            best_C = C
+            best_C = const
 
     return best_C
 
@@ -75,7 +81,9 @@ def main():
     test_size = int(len(xs) * 0.1)
     train_xs = xs[:-test_size]
     train_ys = ys[:-test_size]
+    
     C = best_regularization(train_xs, train_ys)
+
     model = svm.LinearSVC(C=C)
     model.fit(train_xs, train_ys)
 

@@ -18,9 +18,10 @@ def get_input(data_file, train_input_percent):
         instances.append(instance)
     file.close()
 
-    import random as r
+    import random
 
-    r.shuffle(instances)
+    random.seed(1234)
+    random.shuffle(instances)
     train_input_num = int((train_input_percent / 100) * len(instances))
     return instances[:train_input_num], instances[train_input_num + 1:]
 
@@ -29,7 +30,7 @@ def main():
     training, test = get_input("data/wdbc.data", 80)
     dim = len(training[0][2])
     p = get_untraining_perceptron(dim)
-    p.train(0.1, training, 30)
+    p.train(0.005, training, 5000)
 
     print(p.weights)
 
@@ -45,9 +46,12 @@ def main():
             fn += 1
         elif t < 0 < out:
             fp += 1
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
     print("Perceptron results")
-    print("Precision: ", tp / (tp + fp))
-    print("Recall: ", tp / (tp + fn))
+    print("Precision: %4.2f%%" % (precision * 100))
+    print("Recall: %4.2f%%" % (recall * 100))
+    print("F1-metric: %4.2f%%" % (200 * precision * recall / (precision + recall)))
 
 
 if __name__ == "__main__":

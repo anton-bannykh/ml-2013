@@ -1,9 +1,21 @@
 from cancer_common.reader import *
 from cancer_perceptron.perceptron import *
+import numpy
 
 TEST_PERCENT = 0.1
 
+def shuffle(x, y):
+    tmp = list(zip(x, y))
+    numpy.random.shuffle(tmp)
+    x_new = []
+    y_new = []
+    for i in range(len(tmp)):
+        x_new.append(tmp[i][0])
+        y_new.append(tmp[i][1])
+    return x_new, y_new
+
 x, y = get_data()
+x, y = shuffle(x, y)
 test_size = int(len(x) * TEST_PERCENT)
 
 w, Ein = train_perceptron(x[test_size:], y[test_size:], 1000)
@@ -24,9 +36,11 @@ for xCur, yCur in zip(x[:test_size], y[:test_size]):
 
 precision = stats['tp'] / (stats['tp'] + stats['fp'])
 recall = stats['tp'] / (stats['tp'] + stats['fn'])
+F1 = 2 * precision * recall / (precision + recall)
 Eout = (stats['fp'] + stats['fn']) / len(x[:test_size])
 
 print('in sample error     = %6.2f' % (100 * Ein))
 print('out of sample error = %6.2f' % (100 * Eout))
 print('precision           = %6.2f' % (100 * precision))
 print('recall              = %6.2f' % (100 * recall))
+print('F1                  = %6.2f' % F1)

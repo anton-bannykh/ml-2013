@@ -1,5 +1,6 @@
 from cancer_common.reader import *
 from cancer_perceptron.perceptron import *
+import numpy
 
 TEST_PERCENT = 0.1
 
@@ -24,9 +25,11 @@ for xCur, yCur in zip(x[:test_size], y[:test_size]):
 
 precision = stats['tp'] / (stats['tp'] + stats['fp'])
 recall = stats['tp'] / (stats['tp'] + stats['fn'])
+F1 = 2 * precision * recall / (precision + recall)
 Eout = (stats['fp'] + stats['fn']) / len(x[:test_size])
 
 print('in sample error     = %6.2f' % (100 * Ein))
 print('out of sample error = %6.2f' % (100 * Eout))
 print('precision           = %6.2f' % (100 * precision))
 print('recall              = %6.2f' % (100 * recall))
+print('F1                  = %6.2f' % F1)

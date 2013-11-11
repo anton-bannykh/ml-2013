@@ -3,11 +3,7 @@
 
 from cancer_common.data import retrieve_data
 from cancer_perceptron.perceptron import *
-
-def safe_division(x, y):
-    if y == 0:
-        return 0
-    return x / y
+from util import safe_division
 
 def main(test_fraction):
     xs, ys = retrieve_data()

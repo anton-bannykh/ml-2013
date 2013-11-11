@@ -15,14 +15,15 @@ function perceptron(testPart)
     fn = length(find(classRes ~= y & y == -1)) %false negative
     precision = tp/(tp+fp);
     recall = tp/(tp + fn);
-    disp(['precision = ', num2str(precision), ' recall = ', num2str(recall), ' ni = ', num2str(ni)])
+    f1 = 2*(precision*recall)/(precision+recall);
+    disp(['precision = ', num2str(precision), ' recall = ', num2str(recall), ' f1 = ', num2str(f1)])
 end
 
 function [X, y] = loadData(fileName)
 X = importdata(fileName, ',');
 yc = cell2mat(X.textdata(:,2));
-y(find(yc == 'M')) = -1;
-y(find(yc == 'B')) = 1;
+y(find(yc == 'B')) = -1;
+y(find(yc == 'M')) = 1;
 X = (X.data).';
 end
 

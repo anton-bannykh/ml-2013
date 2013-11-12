@@ -1,18 +1,6 @@
-import random
-
 import numpy
 
 from common import *
-
-# splits data set in test set and training set according of sizes test_cnt and train_cnt accordingly
-def split_data(data_set, train_cnt, test_cnt):
-    if train_cnt + test_cnt > len(data_set):
-        raise AttributeError("train_cnt + test_cnt should be no more than data set size")
-    ds = [x for x in data_set]
-    random.shuffle(ds)
-    train_set = ds[0: train_cnt]
-    test_set = ds[train_cnt: train_cnt + test_cnt]
-    return (train_set, test_set)
 
 def f(x, theta):
     dp = numpy.dot(x, theta)
@@ -48,3 +36,18 @@ def calculate_results(test_set, test_ans):
             else:
                 results.append(Result.TP)
     return results
+
+def calculate_error_rate(results):
+    fp = results.count(Result.FP)
+    fn = results.count(Result.FN)
+    return (fp + fn) / len(results)
+
+def calculate_precision(results):
+    tp = results.count(Result.TP)
+    fp = results.count(Result.FP)
+    return tp / (tp + fp)
+
+def calculate_recall(results):
+    tp = results.count(Result.TP)
+    fn = results.count(Result.FN)
+    return tp / (tp + fn)

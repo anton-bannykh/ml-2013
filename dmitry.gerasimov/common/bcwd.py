@@ -1,6 +1,6 @@
 import numpy
 
-from perceptron import Entry
+from common import Entry
 
 # downloads data set to a temporary file
 def get_data(url, local_path):
@@ -19,7 +19,6 @@ def load_data(local_path):
             id = int(l[0])
             diagnosis = -1 if l[1] == 'B' else 1
             ff = [float(x) for x in l[2: 32]]
-            ff.append(0.0) # bias
             features = numpy.array(ff)
             res.append(Entry(id = id, correct = diagnosis, features = features))
     return res

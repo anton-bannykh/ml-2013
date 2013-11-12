@@ -22,9 +22,11 @@ TRAIN_SET_PATH = os.path.join(DATA_DIR, TRAIN_SET_NAME)
 TEST_SET_NAME = "test_set"
 TEST_SET_PATH = os.path.join(DATA_DIR, TEST_SET_NAME)
 
-TEST_SET_FRACTION = 0.10
+VALID_SET_NAME = "valid.set"
+VALID_SET_PATH = os.path.join(DATA_DIR, VALID_SET_NAME)
 
-TRAINING_ITERATIONS = 100
+TEST_SET_FRACTION = 0.10
+VALID_SET_FRACTION = 0.10
 
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
@@ -32,58 +34,82 @@ if not os.path.exists(DATA_DIR):
 if not os.path.exists(TMP_DIR):
     os.makedirs(TMP_DIR)
 
-#get_data(DATA_URL, DATA_LOCAL_PATH)
-#stderr.write("Data set fetched to the file {}\n".format(DATA_LOCAL_PATH))
-#stderr.write("Comment the line 35 of main.py to prevent downloading during the further runs\n")
+get_data(DATA_URL, DATA_LOCAL_PATH)
+stderr.write("Data set fetched to the file {}\n".format(DATA_LOCAL_PATH))
+stderr.write("Comment the line 39 of main.py to prevent downloading during the further runs\n")
 
 data = load_data(DATA_LOCAL_PATH)
 assert len(data) == DATA_SIZE # there should be 569 instances according to the set description
 
-from cvxopt import matrix, solvers
 
-training_set = data
-m = len(training_set) # number of trining examples
-dim = 30 # dimension of the feature vector # TODO BIASED!!!
-C = 1.0 # regularization constant
+def run_all(data, verbose = False):
+    test_size = int(DATA_SIZE * TEST_SET_FRACTION)
+    valid_size = int(DATA_SIZE * VALID_SET_FRACTION)
+    train_size = DATA_SIZE - test_size - valid_size
+    train_set, test_set, valid_set = split_data(data, train_size, test_size, valid_size)
 
-
-pP = [[0.0 for _ in range(1 + dim + m)] for _ in range(1 + dim + m)]
-# set ||w||^2 constraint
-for i in range(1, 1 + dim):
-    pP[i][i] = 1.0
-P = matrix(pP)
-
-pq = [0.0 for _ in range(1 + dim + m)]
-for i in range(1 + dim, 1 + dim + m):
-    pq[i] = C
-q = matrix(pq)
+    if verbose:
+        stderr.write("Train set size: {}\n".format(train_size))
+        stderr.write("Test set size: {}\n".format(test_size))
+        stderr.write("Valid set size: {}\n".format(valid_size))
 
 
-pG = [[0.0 for _ in range(1 + dim + m)] for _ in range(2 * m)]
-# set \xi_i >= 0 constraint
-for i in range(0, m):
-    pG[i][1 + dim + i] = -1.0
-# set constraints on training set points
-for i in range(0, m):
-    point = training_set[i]
-    line = pG[i + m]
-    # bias coefficient
-    line[0] = -point.correct
-    # dot product coeffecients
-    for j, f in enumerate(point.features):
-        line[1 + j] = -point.correct * f
-    # regularisation coeffecient
-    line[1 + dim + i] = -1.0
-G = matrix(([[pG[i][j] for i in range(2 * m)] for j in range(1 + dim + m)])) # cvxopt uses column-major order
+    write_data(train_set, TRAIN_SET_PATH)
+    if verbose:
+        stderr.write("Train set was dumped to the file {}\n".format(TRAIN_SET_PATH))
+    write_data(test_set, TEST_SET_PATH)
+    if verbose:
+        stderr.write("Test set was dumped to the file {}\n".format(TEST_SET_PATH))
+    write_data(valid_set, VALID_SET_PATH)
+    if verbose:
+        stderr.write("Valid set was dumped to the file {}\n".format(VALID_SET_PATH))
 
-ph = [0.0 for i in range(2 * m)]
-# \xi_i >= 0, no coefficients on the rhs
-# coefficients for training set points constraints:
-for i in range(0, m):
-    ph[m + i] = -1.0
-h = matrix(ph)
+    c = 1.0 / 2 ** 10
+    cv_ans = []
+    for _ in range(40):
+        if verbose:
+            stdout.write("C = {}\n".format(c))
 
-# no equality constraints
+        b, w, _ = train_svm(train_set, c)
+        valid_ans = test_svm(valid_set, b, w)
+        results = calculate_results(valid_set, valid_ans)
+        err_rate = error_rate(results)
+        cv_ans.append((c, err_rate))
+        c *= 2
 
-sol = solvers.qp(P, q, G, h)
-print(sol['x'])
+    if verbose:
+        stderr.write(str(cv_ans) + "\n")
+    bestC = min(cv_ans, key = lambda p: p[1])[0]
+    b, w, _ = train_svm(train_set, bestC)
+    test_ans = test_svm(test_set, b, w)
+    results = calculate_results(test_set, test_ans)
+
+    err_rate = error_rate(results)
+    prec = precision(results)
+    rec = recall(results)
+    f1 = f1score(results)
+    #print("C = {}, error rate = {}".format(c, err_rate))
+
+    return (b, w, err_rate, prec, rec, f1)
+
+# random.seed(0) # uncomment to make the program deterministic
+
+cnt = 10
+serr = 0.0
+sprec = 0.0
+srec = 0.0
+sf1 = 0.0
+
+for i in range(cnt):
+    stderr.write("Running... {}/{}\n".format(i, cnt))
+    _, _, err_rate, prec, rec, f1 = run_all(data, verbose = False)
+    stderr.write("Error rate: {}%\n".format(err_rate * 100))
+    serr += err_rate
+    sprec += prec
+    srec += rec
+    sf1 += f1
+
+print("Average error rate ({} runs) is {}%".format(cnt, serr / cnt * 100))
+print("Average precision ({} runs) is {}%".format(cnt, sprec / cnt * 100))
+print("Average recall ({} runs) is {}%".format(cnt, srec / cnt * 100))
+print("Average f1 score ({} runs) is {}".format(cnt, sf1 / cnt))

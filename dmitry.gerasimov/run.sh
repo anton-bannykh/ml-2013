@@ -19,6 +19,7 @@ else
     select opt in "${options[@]}"
     do
         choice=$opt
+	break
     done
 fi
 
@@ -28,7 +29,7 @@ case $choice in
         echo "Running $choice"
         PYTHONPATH=$WD:$PYTHONPATH python3 $choice/main.py
         ;;
-    "lab-svn")
+    "lab-svm")
         echo "Running $choice"
         PYTHONPATH=$WD:$PYTHONPATH python3 $choice/main.py
         ;;

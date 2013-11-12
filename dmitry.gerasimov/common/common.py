@@ -41,12 +41,19 @@ def error_rate(results):
 def precision(results):
     tp = results.count(Result.TP)
     fp = results.count(Result.FP)
-    return tp / (tp + fp)
+    if tp == 0 and fp == 0:
+        # all predictions are negative
+        return 1.0
+    else:
+        return tp / (tp + fp)
 
 
 def recall(results):
     tp = results.count(Result.TP)
     fn = results.count(Result.FN)
+    if tp == 0 and fn == 0:
+        # no positives in data
+        return 1.0
     return tp / (tp + fn)
 
 
@@ -57,3 +64,18 @@ def f1score(results):
         return 0.0
     else:
         return 2 * pr * re / (pr + re)
+
+def calculate_results(test_set, test_ans):
+    results = []
+    for cur, e in zip(test_ans, test_set):
+        if e.correct == -1:
+            if cur == -1:
+                results.append(Result.TN)
+            else:
+                results.append(Result.FP)
+        else:
+            if cur == -1:
+                results.append(Result.FN)
+            else:
+                results.append(Result.TP)
+    return results

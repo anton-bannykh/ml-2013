@@ -47,18 +47,20 @@ def perceptron_testing(dataset, w):
 
 def main():
     dataset = load_dataset()
-    training_set, test_set = split_set(dataset, 0.5)
+    training_set, test_set = split_set(dataset, 0.2)
     w = perceptron_training(training_set)
     tp, tn, fp, fn = perceptron_testing(test_set, w)
 
     precision = tp / (float) (tp + fp)
     recall = tp / (float) (tp + fn)
+    f1 = 2 * precision * recall / (precision + recall)
     print("TP", tp)
     print("TN", tn)
     print("FP", fp)
     print("FN", fn)
     print("Precision: %.5f" % precision)
     print("Recall: %.5f" % recall)
+    print("F1: %.5f" % f1)
 
 if __name__ == "__main__":
 	main()

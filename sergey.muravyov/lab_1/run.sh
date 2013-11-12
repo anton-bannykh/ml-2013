@@ -1,0 +1,1 @@
+PYTHONPATH=. python3 perceptron main.py

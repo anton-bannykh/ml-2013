@@ -26,7 +26,7 @@ def load_data():
     random.shuffle(lines)
     for line in lines:
         tokens = line.split(",")
-        y = 1 if tokens[1] == 'B' else -1
+        y = 1 if tokens[1] == 'M' else -1
         x = list(map(float, tokens[2:]))
         xs.append(x)
         ys.append(y)

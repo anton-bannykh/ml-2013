@@ -10,9 +10,9 @@ def start(training, test):
 
     print(p.weights)
 
-    tp = 0
-    fp = 0
-    fn = 0
+    tp = 0.
+    fp = 0.
+    fn = 0.
     for x in test:
         t = x[1]
         out = p.calc_output(x[2])
@@ -25,7 +25,7 @@ def start(training, test):
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
     print("Perceptron results")
-    print("Precision: %4.2f%%" % (precision * 100))
-    print("Recall: %4.2f%%" % (recall * 100))
-    print("F1-metric: %4.2f%%" % (200 * precision * recall / (precision + recall)))
+    print("Precision: %4.2f%%" % (precision * 100.))
+    print("Recall: %4.2f%%" % (recall * 100.))
+    print("F1-metric: %4.2f%%" % (200. * precision * recall / (precision + recall)))
 

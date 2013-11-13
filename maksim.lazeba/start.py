@@ -18,9 +18,9 @@ def get_input(data_file, train_input_percent):
 
     import random
 
-    random.seed(1234)
+    random.seed(23)
     random.shuffle(instances)
-    train_input_num = int((train_input_percent / 100) * len(instances))
+    train_input_num = int((train_input_percent / 100.) * len(instances))
     return instances[:train_input_num], instances[train_input_num + 1:]
 
 
@@ -32,6 +32,7 @@ def main():
     Lab1.start(training, test)
     #===Starting lab 2 (SVM)
     #print("SVM")
+
 
 if __name__ == "__main__":
     main()

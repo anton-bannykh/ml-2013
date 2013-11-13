@@ -29,9 +29,6 @@ def learn(X, Y, C):
     theta = result[:dimX].T
     theta0 = result[dimX]
 
-    print(theta, theta0)
-    print(list(result[dimX+1:].T))
-
     return lambda t: classify(t, theta, theta0)
 
 def classify(x, theta, theta0=0):

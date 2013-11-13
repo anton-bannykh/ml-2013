@@ -1,7 +1,7 @@
 import numpy as np
 from cvxopt import matrix
 from cvxopt.blas import dotu
-from cvxopt.solvers import qp
+from cvxopt.solvers import qp, options
 
 __author__ = 'adkozlov'
 
@@ -10,7 +10,7 @@ def classify(x, w, b):
     return 1 if np.dot(w, x) + b > 0 else -1
 
 
-def vector(n, i, v=1):
+def vector(n, i, v=1.0):
     result = [0 for _ in range(2 * n)]
 
     result[2 * i] = v
@@ -39,7 +39,7 @@ def matrices(data, c):
         h.append(0.0)
     h = [h]
 
-    a = [[y] for (_, y) in data]
+    a = [[float(y)] for (_, y) in data]
 
     b = [0.0]
 
@@ -47,6 +47,7 @@ def matrices(data, c):
 
 
 def fit_svm(data, c, eps=1e-6):
+    options['show_progress'] = False
     solution = qp(*matrices(data, c))
 
     x0, _ = data[0]
@@ -60,13 +61,13 @@ def fit_svm(data, c, eps=1e-6):
             continue
 
         x, y = data[i]
-        w += y[i] * a[i] * np.array(x[i])
+        w += y * a[i] * np.array(x)
 
     b = 0
     for i in range(len(data)):
         if 2 * eps < a[i] + eps < c:
             x, y = data[i]
-            b = y[i] - np.dot(w, x[i])
+            b = y - np.dot(w, x)
             break
 
     return w, b

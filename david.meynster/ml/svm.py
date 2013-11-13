@@ -9,7 +9,7 @@ def train(data, c=0):
     def f(theta):
         theta0, theta1 = theta[-1], theta[:-1]
         pred = y * (np.dot(x, theta1) + theta0)
-        return 0.5 * sum(theta1 * theta1) + c * sum(1 - pred[pred < 1])
+        return 0.5 * np.sum(theta1 * theta1) + c * np.sum(1 - pred[pred < 1])
     return minimize(f, np.zeros(d + 1)).x
 
 def test(data, theta):

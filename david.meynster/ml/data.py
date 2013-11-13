@@ -10,7 +10,7 @@ def load_cancer_dataset():
             local_copy = open(local_path, 'wb')
             local_copy.write(urlopen(url))
             local_copy.close()
-            data = open(local_path, "r")
+        data = open(local_path, "r")
     except Exception:
         data = urlopen(url)
     lines = data.readlines()
@@ -36,8 +36,10 @@ def split_xy(data):
 def join_xy(data_x, data_y):
     return np.concatenate((data_x, data_y), axis=1)
 
-def dataset_block(dataset):
+def dataset_block(dataset, withOnes=True):
     x, y = dataset
-    ones = np.empty((len(x), 1))
-    ones.fill(1.0)
-    return join_xy(join_xy(x, ones), y.reshape((len(y), 1)))
+    if withOnes:
+        ones = np.empty((len(x), 1))
+        ones.fill(1.0)
+        x = join_xy(x, ones)
+    return join_xy(x, y.reshape((len(y), 1)))

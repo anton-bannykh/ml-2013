@@ -8,8 +8,7 @@ class Stats:
         return self.tp / (self.tp + self.fn)
 
     def error(self):
-        total = self.tp + self.fp + self.fn + self.tn
-        return (self.fp + self.fn) / total
+        return (self.fp + self.fn) / (self.tp + self.fp + self.fn + self.tn)
 
     def f_score(self, beta=1):
         p = self.precision()

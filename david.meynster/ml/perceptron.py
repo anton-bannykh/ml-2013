@@ -7,7 +7,7 @@ def classify(theta, x):
 
 def train(data, iterations=1000):
     x, y = split_xy(data)
-    n, d = len(y), len(x[0])
+    n, d = x.shape
     theta = np.zeros(d)
 
     for it in range(iterations):
@@ -19,7 +19,7 @@ def train(data, iterations=1000):
 def test(data, theta):
     x, y = split_xy(data)
     stats = Stats()
-    for i in range(len(x)):
+    for i in range(len(y)):
         yc = classify(theta, x[i])
         if yc == 1 and y[i] == 1:
             stats.tp += 1

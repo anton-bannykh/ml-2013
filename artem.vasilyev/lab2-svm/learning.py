@@ -25,9 +25,6 @@ def learn(X, Y):
     trainErrors = [error(trainX, trainY, classifier) for classifier in classifiers]
     crossvalErrors = [error(crossvalX, crossvalY, classifier) for classifier in classifiers]
 
-    print(cRange)
-    print(trainErrors)
-    print(crossvalErrors)
     plotErrors(cRange, trainErrors, crossvalErrors)
 
     bestError, bestC, bestClassifier = min(zip(crossvalErrors, cRange, classifiers))

@@ -6,7 +6,7 @@ def mkSVMClassifier(X, y, C = 1):
     def f(theta_):
         theta, theta0 = theta_[:m], theta_[m]
         res = y * (numpy.dot(X, theta) + theta0)
-        return .5 * sum(theta * theta) + sum(1 - res[res < 1])
+        return .5 * sum(theta * theta) + C * sum(1 - res[res < 1])
     theta = minimize(f, numpy.zeros(m + 1)).x
     return lambda v : numpy.sign(numpy.dot(numpy.hstack((v, 1)).T, theta)) or 1
 

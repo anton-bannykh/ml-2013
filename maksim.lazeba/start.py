@@ -27,11 +27,13 @@ def get_input(data_file, train_input_percent):
 def main():
     training, test = get_input("data/wdbc.data", 80)
     #====Starting lab 1 (Perceptron)
-    print("Perceptron lab")
-    import lab1.main as Lab1
-    Lab1.start(training, test)
+    #print "Perceptron lab"
+    #import lab1.main as Lab1
+    #Lab1.start(training, test)
     #===Starting lab 2 (SVM)
-    #print("SVM")
+    print "SVM"
+    import lab2.main as Lab2
+    Lab2.start(training, test)
 
 
 if __name__ == "__main__":

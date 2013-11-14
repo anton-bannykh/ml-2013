@@ -24,8 +24,8 @@ def start(training, test):
             fp += 1
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
-    print("Perceptron results")
-    print("Precision: %4.2f%%" % (precision * 100.))
-    print("Recall: %4.2f%%" % (recall * 100.))
-    print("F1-metric: %4.2f%%" % (200. * precision * recall / (precision + recall)))
+    print "Perceptron results"
+    print "Precision: %4.2f%%" % (precision * 100.)
+    print "Recall: %4.2f%%" % (recall * 100.)
+    print "F1-metric: %4.2f%%" % (200. * precision * recall / (precision + recall))
 

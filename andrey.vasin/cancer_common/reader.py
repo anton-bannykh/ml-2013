@@ -20,9 +20,9 @@ def get_data():
         input = line.decode('utf-8').strip().split(',')
 
         if input[1] == 'M':
-            y.append(1)
+            y.append(1.0)
         else:
-            y.append(-1)
+            y.append(-1.0)
 
         parameters = [float(x) for x in input[2:]]
         parameters.insert(0, 1.0)

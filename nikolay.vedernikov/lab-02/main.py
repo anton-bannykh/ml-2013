@@ -3,8 +3,6 @@ import random
 from urllib.request import urlopen
 import svm
 
-# random.seed("cancer")
-
 def load_data():
     lines = urlopen("http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data").readlines()
     n, d = len(lines), len(lines[0].decode('utf-8').split(',')) - 2
@@ -17,7 +15,7 @@ def load_data():
     return x
 
 def split(data, fraction=0.15):
-    random.shuffle(data)
+    np.random.shuffle(data)
     point = int(len(data) * fraction)
     return data[point:], data[:point]
 
@@ -25,6 +23,7 @@ def main():
     data = load_data()
     train, test = split(data)
     best_c = svm.optimize_regularization(data)
+    print()
     print("Best C: %.5f" % best_c)
 
     theta = svm.train(train, c=best_c)

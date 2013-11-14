@@ -3,9 +3,6 @@ from numpy.linalg import norm
 import scipy.optimize as opt
 import main
 
-def classify(theta, x):
-    return 1 if np.dot(theta, x) >= 0 else -1
-
 def train(data, c=0):
     x, y = data[:, :-1], data[:, -1]
     n, d = x.shape
@@ -32,7 +29,7 @@ def testing(data, theta):
             stats['fn'] += 1
         else:
             stats['tn'] += 1
-            
+
     result['pre'] = stats['tp'] / (stats['tp'] + stats['fp'])
     result['rec'] = stats['tp'] / (stats['tp'] + stats['fn'])
     result['er'] = (stats['fp'] + stats['fn']) / len(y)
@@ -42,11 +39,13 @@ def testing(data, theta):
 def optimize_regularization(data):
     c_best, f1_best = 0, 0
     data_train, data_test = main.split(data, 0.5)
-    for d in range(-10, 20):
+    for d in range(-10, 10):
         c = 2 ** d
         theta = train(data_train, c=c)
         res = testing(data_test, theta)
         f1_cur = res['f1']
         if f1_best < f1_cur:
             c_best, f1_best = c, f1_cur
+            print("Now best F1: %.5f" % f1_best)
+        print("Cur c: %.5f" % c)
     return c_best

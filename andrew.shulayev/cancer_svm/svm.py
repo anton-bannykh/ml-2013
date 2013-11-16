@@ -115,7 +115,7 @@ def optimal_regularizer(xs, ys, kernel):
 
 def main(train_ratio=0.9):
     options['show_progress'] = False
-    xs, ys = shuffle_args(*retrieve_data(as_list=True, negative_label=-1.0, positive_label=1.0))
+    xs, ys = shuffle_args(*retrieve_data(as_list=True, negative_label=-1.0, positive_label=1.0, insert_bias=False))
     xs_train, xs_test = split_with_ratio(xs, train_ratio)
     ys_train, ys_test = split_with_ratio(ys, train_ratio)
 

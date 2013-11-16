@@ -8,7 +8,10 @@ def bound(L, H, x):
         return H
     return x
 
-def optimize_pair(t1, t2, C, f, kernel):
+def float_equals(x, y, tolerance=1e-5):
+    return abs(x - y) < tolerance
+
+def optimize_pair(t1, t2, C, f, b, kernel, tolerance=1e-5):
     a1, x1, y1 = t1
     a2, x2, y2 = t2
 
@@ -20,14 +23,30 @@ def optimize_pair(t1, t2, C, f, kernel):
         L = max(0, a1 + a2 - C)
         H = min(C, a1 + a2)
 
+    if float_equals(L, H, tolerance):
+        return None
+
     E1 = f(x1) - y1
     E2 = f(x2) - y2
     n = 2 * kernel(x1, x2) - kernel(x1, x1) - kernel(x2, x2)
 
     r2 = bound(L, H, a2 - y2 * (E1 - E2) / n)
+    if float_equals(a2, r2, tolerance):
+        return None
+
     r1 = a1 + y1 * y2 * (a2 - r2)
 
-    return r1, r2
+    b1 = b - E1 - y1 * (r1 - a1) * kernel(x1, x1) - y2 * (r2 - a2) * kernel(x1, x2)
+    b2 = b - E2 - y1 * (r1 - a1) * kernel(x1, x2) - y2 * (r2 - a2) * kernel(x2, x2)
+
+    if tolerance < a1 < C - tolerance:
+        rb = b1
+    elif tolerance < a2 < C - tolerance:
+        rb = b2
+    else:
+        rb = (b1 + b2) * 0.5
+
+    return r1, r2, rb
 
 def main():
     pass

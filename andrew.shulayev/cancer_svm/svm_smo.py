@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from random import randrange
+import numpy as np
+
 def bound(L, H, x):
     if x <= L:
         return L
@@ -47,6 +50,29 @@ def optimize_pair(t1, t2, C, f, b, kernel, tolerance=1e-5):
         rb = (b1 + b2) * 0.5
 
     return r1, r2, rb
+
+def target_function(a, xs, ys, b, kernel, x):
+    result = 0
+    for ai, xi, yi in zip(a, xs, ys):
+        result += ai * yi * kernel(xi, x)
+    return result + b
+
+def sequential_minimal_optimization(xs, ys, C, kernel, max_passes=10, tolerance=1e-5):
+    passes = 0
+    n = len(xs)
+    a = np.zeros(n)
+    b = 0
+    while passes < max_passes:
+        changed = 0
+        for i, (x, y) in enumerate(zip(xs, ys)):
+            E = target_function(a, xs, ys, b, kernel, x)
+            if (y * E < -tolerance and a[i] < C) or (y * E > tolerance and a[i] > C):
+                # KKT conditions are violated
+                j = randrange(0, n - 1)
+                if j >= i:
+                    j += 1
+                # TODO: continue here
+                optimize_pair((a[i], x, y), (a[j], xs[j], ys[j]), C, f, b, kernel, tolerance)
 
 def main():
     pass

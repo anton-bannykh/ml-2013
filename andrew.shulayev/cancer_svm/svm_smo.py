@@ -71,8 +71,21 @@ def sequential_minimal_optimization(xs, ys, C, kernel, max_passes=10, tolerance=
                 j = randrange(0, n - 1)
                 if j >= i:
                     j += 1
-                # TODO: continue here
-                optimize_pair((a[i], x, y), (a[j], xs[j], ys[j]), C, f, b, kernel, tolerance)
+                f = lambda x: target_function(a, xs, ys, b, kernel, x)
+                result = optimize_pair((a[i], x, y), (a[j], xs[j], ys[j]), C, f, b, kernel, tolerance)
+
+                if result is None:
+                    # can't optimize this pair
+                    continue
+                a1, a2, b = result
+                a[i] = a1
+                a[j] = a2
+                changed += 1
+        if changed == 0:
+            passes += 1
+        else:
+            passes = 0
+    return a, b
 
 def main():
     pass

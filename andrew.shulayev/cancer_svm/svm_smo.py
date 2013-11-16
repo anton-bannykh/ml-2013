@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import math
 
+from util import *
 from random import randrange
+from cancer_common.data import retrieve_data
 import numpy as np
 
 def bound(L, H, x):
@@ -94,10 +97,49 @@ def sequential_minimal_optimization(xs, ys, C, kernel, max_passes=10, tolerance=
 def linear_kernel(x, y):
     return np.dot(x, y)
 
+def polynomial_kernel(p, x, y):
+    return (1 + np.dot(x, y))**p
+
+def poly_kernel_wrapper(p):
+    return lambda x, y: polynomial_kernel(p, x, y)
+
+def gaussian_kernel(gamma, x, y):
+    diff = np.array(x) - np.array(y)
+    norm_sq = np.dot(diff, diff)
+    return math.exp(-gamma * norm_sq)
+
+def gaussian_kernel_wrapper(gamma):
+    return lambda x, y: gaussian_kernel(gamma, x, y)
+
+def check_kernel(train, test, C, kernel, name='unknown'):
+    xs, ys = train
+    a, b = sequential_minimal_optimization(xs, ys, C, kernel)
+
+    xs, ys = test
+    size = len(xs)
+    errors = 0
+
+    for x, y in zip(xs, ys):
+        yc = sign(target_function(a, xs, ys, b, kernel, x))
+        if yc != y:
+            errors += 1
+    rate = errors / size
+    print('error rate on kernel "%s" = %8.3f%%' % (name, rate))
+
 def main():
-    xs = [[0.0, 0.0], [1.0, 1.0]]
-    ys = [-1, 1]
-    print(sequential_minimal_optimization(xs, ys, 1.0, linear_kernel))
+    xs, ys = retrieve_data(as_list=True)
+    print('debug: data retrieved')
+    xs_train, xs_test = split_with_ratio(xs, 0.9)
+    ys_train, ys_test = split_with_ratio(ys, 0.9)
+
+    train = (xs_train, ys_train)
+    test = (xs_test, ys_test)
+    C = 1e2
+
+    check_kernel(train, test, C, linear_kernel, 'linear')
+    for i in range(2, 5):
+        check_kernel(train, test, C, poly_kernel_wrapper(i), 'polynomial %d' % i)
+    check_kernel(train, test, C, gaussian_kernel_wrapper(1.0), 'gaussian')
 
 if __name__ == "__main__":
     main()

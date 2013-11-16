@@ -33,6 +33,9 @@ def optimize_pair(t1, t2, C, f, b, kernel, tolerance=1e-5):
     E2 = f(x2) - y2
     n = 2 * kernel(x1, x2) - kernel(x1, x1) - kernel(x2, x2)
 
+    if n >= 0:
+        return None
+
     r2 = bound(L, H, a2 - y2 * (E1 - E2) / n)
     if float_equals(a2, r2, tolerance):
         return None
@@ -65,7 +68,7 @@ def sequential_minimal_optimization(xs, ys, C, kernel, max_passes=10, tolerance=
     while passes < max_passes:
         changed = 0
         for i, (x, y) in enumerate(zip(xs, ys)):
-            E = target_function(a, xs, ys, b, kernel, x)
+            E = target_function(a, xs, ys, b, kernel, x) - y
             if not ((y * E < -tolerance and a[i] < C) or (y * E > tolerance and a[i] > C)):
                 continue
             # KKT conditions are violated
@@ -88,8 +91,13 @@ def sequential_minimal_optimization(xs, ys, C, kernel, max_passes=10, tolerance=
             passes = 0
     return a, b
 
+def linear_kernel(x, y):
+    return np.dot(x, y)
+
 def main():
-    pass
+    xs = [[0.0, 0.0], [1.0, 1.0]]
+    ys = [-1, 1]
+    print(sequential_minimal_optimization(xs, ys, 1.0, linear_kernel))
 
 if __name__ == "__main__":
     main()

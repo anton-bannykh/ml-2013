@@ -34,7 +34,12 @@ def optimize_pair(t1, t2, C, f, b, kernel, tolerance=1e-5):
 
     E1 = f(x1) - y1
     E2 = f(x2) - y2
-    n = 2 * kernel(x1, x2) - kernel(x1, x1) - kernel(x2, x2)
+
+    k12 = kernel(x1, x2)
+    k11 = kernel(x1, x1)
+    k22 = kernel(x2, x2)
+
+    n = 2 * k12 - k11 - k22
 
     if n >= 0:
         return None
@@ -45,12 +50,12 @@ def optimize_pair(t1, t2, C, f, b, kernel, tolerance=1e-5):
 
     r1 = a1 + y1 * y2 * (a2 - r2)
 
-    b1 = b - E1 - y1 * (r1 - a1) * kernel(x1, x1) - y2 * (r2 - a2) * kernel(x1, x2)
-    b2 = b - E2 - y1 * (r1 - a1) * kernel(x1, x2) - y2 * (r2 - a2) * kernel(x2, x2)
+    b1 = b - E1 - y1 * (r1 - a1) * k11 - y2 * (r2 - a2) * k12
+    b2 = b - E2 - y1 * (r1 - a1) * k12 - y2 * (r2 - a2) * k22
 
-    if tolerance < a1 < C - tolerance:
+    if 0 < r1 < C:
         rb = b1
-    elif tolerance < a2 < C - tolerance:
+    elif 0 < r2 < C:
         rb = b2
     else:
         rb = (b1 + b2) * 0.5
@@ -112,25 +117,26 @@ def gaussian_kernel_wrapper(gamma):
     return lambda x, y: gaussian_kernel(gamma, x, y)
 
 def check_kernel(train, test, C, kernel, name='unknown'):
-    xs, ys = train
-    a, b = sequential_minimal_optimization(xs, ys, C, kernel)
+    xs_train, ys_train = train
+    a, b = sequential_minimal_optimization(xs_train, ys_train, C, kernel)
 
     xs, ys = test
     size = len(xs)
     errors = 0
 
     for x, y in zip(xs, ys):
-        yc = sign(target_function(a, xs, ys, b, kernel, x))
+        yc = sign(target_function(a, xs_train, ys_train, b, kernel, x))
         if yc != y:
             errors += 1
     rate = errors / size
-    print('error rate on kernel "%s" = %8.3f%%' % (name, rate))
+    print('error rate on kernel "%s" = %8.3f%%' % (name, 100 * rate))
 
 def main():
     xs, ys = retrieve_data(as_list=True)
     print('debug: data retrieved')
-    xs_train, xs_test = split_with_ratio(xs, 0.9)
-    ys_train, ys_test = split_with_ratio(ys, 0.9)
+    ratio = 0.9
+    xs_train, xs_test = split_with_ratio(xs, ratio)
+    ys_train, ys_test = split_with_ratio(ys, ratio)
 
     train = (xs_train, ys_train)
     test = (xs_test, ys_test)

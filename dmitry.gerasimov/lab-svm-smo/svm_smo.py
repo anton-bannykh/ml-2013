@@ -3,28 +3,25 @@ import numpy as np
 
 from common import *
 
-def f(features, b, w):
-    return np.dot(w, features) + b
-
 # phi : vector ->  float
 # K(x, y) = phi(x) * phi(y)
-def train_svm(training_set, C, phi):
-    def K(x, y):
-        return np.dot(phi(x), phi(y))
+# returns a classifier function
+def train_svm(training_set, C, K):
+    datax = [x.features for x in training_set]
+    datay = [x.correct for x in training_set]
+
 
     solvers.options['show_progress'] = False
 
     m = len(training_set) # number of training examples
-    dim = len(training_set[0].features) # dimension of the feature vector
+    dim = len(datax[0]) # dimension of the feature vector
 
     # explanation of this weird stuff is at <http://cvxopt.org/userguide/coneprog.html#quadratic-programming>
     # we optimize min 1/2 * \sum_i \sum_j y_i y_j K(x_i, x_j) a_i a_j - \sum_i a_i
     pP = np.zeros([m, m])
     for i in range(m):
         for j in range(m):
-            pi = training_set[i]
-            pj = training_set[j]
-            pP[i][j] = pi.correct * pj.correct * K(pi.features, pj.features)
+            pP[i][j] = datay[i] * datay[j] * K(datax[i], datax[j])
     P = matrix(pP)
 
     pq = np.zeros([m, 1])
@@ -53,7 +50,7 @@ def train_svm(training_set, C, phi):
     pA = np.zeros([1, m])
     pb = np.zeros([1, 1])
     for i in range(m):
-        pA[0][i] = training_set[i].correct
+        pA[0][i] = datay[i]
 
     pb[0][0] = 0.0 # just for clarity
 
@@ -62,36 +59,37 @@ def train_svm(training_set, C, phi):
 
     sol = solvers.qp(P, q, G, h, A, b)['x']
 
-    # we have a's, so we should extract w and b now
-
-    w = np.zeros(dim)
-    for i in range(m):
-        w += sol[i] * training_set[i].correct * training_set[i].features
-
-    # now we have to find such an i that 0 < a_i < C, in that case: y_i (w^T phi(x_i) + b) = 1
-    # the problem is we might have numbers indistinguishable from zero
-    # we are going to find
+    # now we can find the bias using a support vector x_i such that 0 < a_i < C
+    # the only problem is we might have numbers indistinguishable from zero
     tolerance = 1e-6
 
     b = None
     for i in range(m):
         if 0 + tolerance < sol[i] < C - tolerance:
-            b = training_set[i].correct - np.dot(w, phi(training_set[i].features))
+            s = 0.0
+            for j in range(m):
+                s += sol[j] * datay[j] * K(datax[j], datax[i])
+            b = datay[i] - s
             break
 
-    return b, w
+    def classify(v):
+        s = 0.0
+        for i in range(m):
+            s += sol[i] * datay[i] * K(v, datax[i])
+        s += b
+        if s >= 0:
+            return 1
+        else:
+            return -1
+
+    return classify
 
 
-def test_svm(test_set, b, theta):
+def test_svm(test_set, classifier):
     res = []
     for e in test_set:
         #print("Point {}".format(e.features))
-        r = f(e.features, b, theta)
+        r = classifier(e.features)
         #print("Result {}".format(r))
-        rr = None
-        if r >= 1:
-            rr = 1
-        else:
-            rr = -1
-        res.append(rr)
+        res.append(r)
     return res

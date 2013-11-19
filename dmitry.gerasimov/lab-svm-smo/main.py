@@ -43,7 +43,7 @@ data = load_data(DATA_LOCAL_PATH)
 assert len(data) == DATA_SIZE # there should be 569 instances according to the set description
 
 
-def run_all(data, verbose = False):
+def run_all(data, phi, verbose = False):
     test_size = int(DATA_SIZE * TEST_SET_FRACTION)
     valid_size = int(DATA_SIZE * VALID_SET_FRACTION)
     train_size = DATA_SIZE - test_size - valid_size
@@ -65,24 +65,24 @@ def run_all(data, verbose = False):
     if verbose:
         stderr.write("Valid set was dumped to the file {}\n".format(VALID_SET_PATH))
 
-    c = 1.0 / 2 ** 5
+    c = 1.0
     cv_ans = []
     for _ in range(15):
-        if verbose:
-            stdout.write("C = {}\n".format(c))
-
-        b, w = train_svm(train_set, c, kernels.identity)
-        valid_ans = test_svm(valid_set, b, w)
+        #if verbose:
+        stderr.write("Trying C = {} ".format(c))
+        classifier = train_svm(train_set, c, phi)
+        valid_ans = test_svm(valid_set, classifier)
         results = calculate_results(valid_set, valid_ans)
         err_rate = error_rate(results)
         cv_ans.append((c, err_rate))
+        stderr.write("validation set error rate {}\n".format(err_rate))
         c *= 2
 
     if verbose:
         stderr.write(str(cv_ans) + "\n")
     bestC = min(cv_ans, key = lambda p: p[1])[0]
-    b, w = train_svm(train_set, bestC, kernels.identity)
-    test_ans = test_svm(test_set, b, w)
+    classifier = train_svm(train_set, bestC, phi)
+    test_ans = test_svm(test_set, classifier)
     results = calculate_results(test_set, test_ans)
 
     err_rate = error_rate(results)
@@ -90,28 +90,38 @@ def run_all(data, verbose = False):
     rec = recall(results)
     f1 = f1score(results)
     if verbose:
-        print("C = {}, error rate = {}".format(c, err_rate))
+        print("C = {}, test set error rate = {}".format(bestC, err_rate))
 
-    return (b, w, err_rate, prec, rec, f1)
+    return (classifier, err_rate, prec, rec, f1)
 
-random.seed(0) # uncomment to make the program deterministic
+random.seed(6346) # uncomment to make the program deterministic
 
-cnt = 10
-serr = 0.0
-sprec = 0.0
-srec = 0.0
-sf1 = 0.0
+ks = [
+    (kernels.identity, "Identity kernel"),
+    (lambda x, y : kernels.poly2(x, y, 0.0), "Homogeneous polynomial kernel")
+    (lambda x, y : kernels.gaussian(x, y, -0.00001), "Gaussian kernel, gamma = -0.00001")
+]
 
-for i in range(cnt):
-    stderr.write("Running... {}/{}\n".format(i, cnt))
-    _, _, err_rate, prec, rec, f1 = run_all(data, verbose = False)
-    stderr.write("Error rate: {}%\n".format(err_rate * 100))
-    serr += err_rate
-    sprec += prec
-    srec += rec
-    sf1 += f1
+for phi, desc in ks:
+    cnt = 2
+    serr = 0.0
+    sprec = 0.0
+    srec = 0.0
+    sf1 = 0.0
+    print("--------------------------------")
+    print("Running {} iterations using {}".format(cnt, desc))
 
-print("Average error rate ({} runs) is {}%".format(cnt, serr / cnt * 100))
-print("Average precision ({} runs) is {}%".format(cnt, sprec / cnt * 100))
-print("Average recall ({} runs) is {}%".format(cnt, srec / cnt * 100))
-print("Average f1 score ({} runs) is {}".format(cnt, sf1 / cnt))
+    for i in range(cnt):
+        stderr.write("Running... {}/{}\n".format(i, cnt))
+        _, err_rate, prec, rec, f1 = run_all(data, phi, verbose = True)
+        #stderr.write("Error rate: {}%\n".format(err_rate * 100))
+        serr += err_rate
+        sprec += prec
+        srec += rec
+        sf1 += f1
+
+    print("Average error rate ({} runs) is {}%".format(cnt, serr / cnt * 100))
+    print("Average precision ({} runs) is {}%".format(cnt, sprec / cnt * 100))
+    print("Average recall ({} runs) is {}%".format(cnt, srec / cnt * 100))
+    print("Average f1 score ({} runs) is {}".format(cnt, sf1 / cnt))
+    print("--------------------------------")

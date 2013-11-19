@@ -15,7 +15,7 @@ then
     choice=$1
 else
     echo "Please enter your choice (Ctrl-C to abort):"
-    options=("lab-perceptron" "lab-svm" "Quit")
+    options=("lab-perceptron" "lab-svm" "lab-svm-smo" "Quit")
     select opt in "${options[@]}"
     do
         choice=$opt
@@ -30,6 +30,10 @@ case $choice in
         PYTHONPATH=$WD:$PYTHONPATH python3 $choice/main.py
         ;;
     "lab-svm")
+        echo "Running $choice"
+        PYTHONPATH=$WD:$PYTHONPATH python3 $choice/main.py
+        ;;
+    "lab-svm-smo")
         echo "Running $choice"
         PYTHONPATH=$WD:$PYTHONPATH python3 $choice/main.py
         ;;

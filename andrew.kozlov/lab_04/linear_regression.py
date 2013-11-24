@@ -1,13 +1,19 @@
 from math import exp
-from numpy.linalg import norm
-from numpy.ma import inner, zeros, array, average
+import numpy
 
 __author__ = 'adkozlov'
 
 
-def classify(x, w):
-    v = -inner(x, w)
-    return 1.0 if 1 / (1 + exp(v)) >= 0.5 else -1.0
+def norm(w):
+    return numpy.sqrt(numpy.inner(w, w))
+
+
+def function(x, c=1):
+    return c / (1 + exp(x))
+
+
+def classify(x, w, margin=0.5):
+    return 1.0 if function(-numpy.inner(x, w)) >= margin else -1.0
 
 
 def calculate_error(data, w):
@@ -27,20 +33,20 @@ def line_length(data):
 
 def linear_regression_w(data, c, exp_value=20, eps=0.1, rate=0.01):
     m = line_length(data)
-    w = zeros(m)
+    w = numpy.zeros(m)
 
     dif_prev = 0
     while True:
-        w_prev = array(w)
+        w_prev = numpy.array(w)
 
         for (x, y) in data:
-            grad = zeros(m)
+            grad = numpy.zeros(m)
 
             for j in range(m):
-                v = y * inner(w, x)
+                v = y * numpy.inner(w, x)
 
                 if v < exp_value:
-                    grad[j] += y * x[j] / (1 + exp(v))
+                    grad[j] += function(v, y * x[j])
                 if j != 0:
                     grad[j] += c * w[j]
 
@@ -59,23 +65,24 @@ def linear_regression_w(data, c, exp_value=20, eps=0.1, rate=0.01):
 
 def cross_validate(data, c, n=10):
     step = len(data) // n
-    errors = []
+    result = 0
 
     for i in range(0, len(data), step):
         w = linear_regression_w(data[i + step:] + data[:i], c)
-        errors.append(calculate_error(data[i:i + step], w))
+        result += calculate_error(data[i:i + step], w)
 
-    return average(errors)
+    return result / n
 
 
-def optimize_constant(data, n=10):
-    result, error = 0, 1
+def optimize_constant(data, base=3, n=10):
+    result, error = 1, 1
 
     for d in range(n):
-        c = 0.5 ** d
+        c = base ** -d
         average_error = cross_validate(data, c)
+        print("current constant = %f, current error = %f" % (c, average_error))
 
-        if error > average_error or result == 0:
+        if average_error < error:
             error = average_error
             result = c
 

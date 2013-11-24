@@ -24,7 +24,7 @@ def scale(data):
 
 
 def main():
-    train_set, test_set = divide(scale(load_data()))
+    train_set, test_set = divide(scale(load_data()), 0.2)
 
     c = optimize_constant(train_set)
     w = linear_regression_w(train_set, c)

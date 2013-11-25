@@ -1,151 +1,104 @@
-import math
 import numpy
+from math import exp
+from numpy.numarray import zeros
 from urllib.request import urlopen
 
+def llength(data):
+    x, _ = data[0]
+    return len(x)
+
 def get_data():
-    x, y = [], []
+    result = []
+
     file = urlopen("http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data")
     for line in file.readlines():
-        input = line.decode('utf-8').strip().split(',')
+        array = line.decode("utf-8").split(',')
+        result.append(([1.0] + [float(f) for f in array[2:]], 1 if array[1] == "M" else -1))
 
-        if input[1] == 'M':
-            y.append(1.0)
-        else:
-            y.append(-1.0)
+    rlen = llength(result)
+    x_min, x_max = numpy.array([1e10] * rlen), zeros(rlen)
+    for (x, _) in result:
+        for i in range(rlen):
+            x_min[i] = min(x_min[i], x[i])
+            x_max[i] = max(x_max[i], x[i])
+    for (x, _) in result:
+        for i in range(rlen):
+            x[i] = (x[i] - x_min[i]) / (x_max[i] - x_min[i]) if x_max[i] != x_min[i] else 1
 
-        parameters = [float(x) for x in input[2:]]
-        parameters.insert(0, 1.0)
-        parameters = numpy.array(parameters)
-        x.append(parameters)
-    file.close()
-    
-    x_min, x_max = numpy.array([1e10] * len(x[0])), numpy.zeros(len(x[0]))
-    for x_cur in x:
-        for i in range(len(x_cur)):
-            if x_min[i] > x_cur[i]:
-                x_min[i] = x_cur[i]
-            if x_max[i] < x_cur[i]:
-                x_max[i] = x_cur[i]
-                
-    for x_cur in x:
-        for i in range(len(x_cur)):
-            if (x_max[i] != x_min[i]):
-                x_cur[i] = (x_cur[i] - x_min[i]) / (x_max[i] - x_min[i])
-            else:
-                x_cur[i] = 1
-    return shuffle(x, y)
+    return result
 
-def shuffle(x, y):
-    tmp = list(zip(x, y))
-    numpy.random.shuffle(tmp)
-    x_new = []
-    y_new = []
-    for i in range(len(tmp)):
-        x_new.append(tmp[i][0])
-        y_new.append(tmp[i][1])
-    return x_new, y_new
 
 def norm(x):
     return numpy.sqrt(numpy.inner(x, x))
 
-def get_w_logistic_regression(x_in, y_in, const):
-    w = numpy.zeros(len(x_in[0]))
-    difPrev = 0
-    while (True):
-        wPrev = numpy.array(w)
-        cur_x_in, cur_y_in = shuffle(x_in, y_in)
-        for i in range(len(cur_x_in)):
-            grad = numpy.zeros(len(x_in[0]))
-            for j in range(len(x_in[0])):
-                if cur_y_in[i] * numpy.inner(w, cur_x_in[i]) < 20:
-                    grad[j] += cur_y_in[i] * cur_x_in[i][j] / (1 + math.exp(cur_y_in[i] * numpy.inner(w, cur_x_in[i])))
-                if j > 0:
-                   grad[j] += const * w[j]
-            w += 0.01 * grad
+def function(x, c=1):
+    return c / (1 + exp(x))
 
-        dif = w - wPrev
-        if difPrev < norm(dif) and difPrev != 0:
+def calculate_error(data, w):
+    count = 0
+    for (x, y) in data:
+        cl = 1.0 if function(-numpy.inner(x, w)) >= 0.5 else -1.0
+        if cl != y:
+            count += 1
+    return count / len(data)
+
+def linear_regression_w(data, c, exp_value=20, eps=0.1, rate=0.01):
+    m = llength(data)
+    w = numpy.zeros(m)
+    dif_prev = 0
+    while True:
+        w_prev = numpy.array(w)
+        for (x, y) in data:
+            grad = numpy.zeros(m)
+            for j in range(m):
+                v = y * numpy.inner(w, x)
+                if v < exp_value:
+                    grad[j] += function(v, y * x[j])
+                if j != 0:
+                    grad[j] += c * w[j]
+            w += rate * grad
+        dif_norm = norm(w - w_prev)
+        if dif_prev < dif_norm and dif_prev != 0:
             break
         else:
-            difPrev = norm(dif)
-        if (norm(dif) < 0.1):
+            dif_prev = dif_norm
+        if dif_norm < eps:
             break
+
     return w
 
-def predict_logistic_regression(x_out, w):
-    return [1.0 if 1 / (1 + math.exp(-numpy.inner(x, w))) >= 0.5 else -1.0 for x in x_out]
+def cross_validate(data, c, n=10):
+    step = len(data) // n
+    result = 0
+    for i in range(0, len(data), step):
+        w = linear_regression_w(data[i + step:] + data[:i], c)
+        result += calculate_error(data[i:i + step], w)
+    return result / n
 
 
-def get_best_constant(x, y, parts):
-    part_size = int(len(x) / parts)
-    min_error = 1
-    best_C = 1
+def get_constant(data, base=3, n=10):
+    result, min_error = 1, 1
 
-    for deg in range(0, 10):
-        C = 0.1 ** (deg)
-        print(deg)
-        error = 0
-
-        for i in range(parts):
-            check_set_x = x[i * part_size: (i + 1) * part_size]
-            check_set_y = y[i * part_size: (i + 1) * part_size]
-
-            training_set_x = x[:i * part_size] + x[(i + 1) * part_size:]
-            training_set_y = y[:i * part_size] + y[(i + 1) * part_size:]
-
-            w = get_w_logistic_regression(training_set_x, training_set_y, const)
-            prediction = predict_logistic_regression(check_set_x, w)
-
-            curr_error = 0
-            for j in range(len(check_set_x)):
-                if check_set_y[j] != prediction[j]:
-                    curr_error += 1
-            error += curr_error / len(check_set_x) / parts
-
+    for d in range(n):
+        c = base ** -d
+        error = cross_validate(data, c)
+        print("current deg = %d, current const = %f, current err = %f" % (d, c, error))
         if error < min_error:
             min_error = error
-            best_C = C
+            result = c
 
-    return best_C
+    return result
 
 def main():
-    
-    x, y = get_data()
-    test_size = int(len(x) * 0.2)
-    
-    check_set_x, check_set_y = x[:test_size], y[:test_size]
-    xs, ys = x[test_size:], y[test_size:]
+    data = get_data()
+    numpy.random.shuffle(data)
+    test_len = int(len(data) * 0.2)
+    xs, ys = data[test_len:], data[:test_len]
 
-    C = get_best_constant(xs, ys, 10)
+    c = get_constant(xs)
+    e = calculate_error(ys, w)
+    print('regularization constant = %f' % c)
+    print('error = %6.2f' % (100 * e))
 
-    w = get_w_logistic_regression(xs, ys, C)
-    prediction = predict_logistic_regression(xs, w)
-
-    mc = 0
-    for j in range(len(xs)):
-        if training_set_y[j] != prediction[j]:
-            mc += 1
-    Ein = mc / len(xs)
-    prediction = predict_logistic_regression(check_set_x, w)
-
-    stats = {'tp': 0, 'tn': 0, 'fp': 0, 'fn': 0}
-
-    for j in range(len(check_set_x)):
-        if check_set_y[j] == -1:
-            key = 'tn' if prediction[j] == -1 else 'fp'
-            stats[key] += 1
-        if check_set_y[j] == 1:
-            key = 'tp' if prediction[j] == 1 else 'fn'
-            stats[key] += 1
-
-    precision = stats['tp'] / (stats['tp'] + stats['fp'])
-    recall = stats['tp'] / (stats['tp'] + stats['fn'])
-    F1 = 2 * precision * recall / (precision + recall)
-    Eout = (stats['fp'] + stats['fn']) / len(x[:test_size])
-
-    print("regularization constant = %6.5f" % C)
-    print('in sample error = %6.2f' % (100 * Ein))
-    print('out of sample error = %6.2f' % (100 * Eout))
-    print('precision = %6.2f' % (100 * precision))
-    print('recall = %6.2f' % (100 * recall))
-    print('f1 = %6.2f' % (100 * F1))
+if __name__ == "__main__":
+    main()

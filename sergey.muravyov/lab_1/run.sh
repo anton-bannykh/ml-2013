@@ -1,1 +1,1 @@
-PYTHONPATH=. python3 perceptron main.py
+PYTHONPATH=. python3 perceptron.py

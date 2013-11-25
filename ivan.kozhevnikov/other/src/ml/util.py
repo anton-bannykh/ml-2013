@@ -1,6 +1,8 @@
+import regularization
 
-def read_input():
-    input_data = open('../../resources/wdbc.data')
+
+def read_input(file):
+    input_data = open(file)
     vectors = []
     classes = []
     for line in input_data:
@@ -36,10 +38,21 @@ def calc_score(test, classifier):
     precision = tp / (fp + tp)
     return error, recall, precision
 
+
 def f1_metric(error, recall, precision):
     return 2 * recall * precision / (error + precision)
+
 
 def print_result(error, recall, precision):
     print("Error: {0:.4f}".format(error))
     print("Recall: {0:.4f}".format(recall))
     print("Precision: {0:.4f}".format(precision))
+
+
+def run(method_builder, file):
+    input_data = zip(*read_input(file))
+    c = regularization.find_regularization_const(input_data, method_builder)
+
+    result = regularization.build_classifier_get_result(input_data, c, method_builder)
+    print("The best result is when C is: " + str(c))
+    print_result(*result)

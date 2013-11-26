@@ -4,8 +4,6 @@ from sys import stdin, stdout, stderr
 import numpy
 
 from bcwd import *
-from svm_smo import *
-import kernels
 
 DATA_DIR = "data"
 TMP_DIR = "tmp"

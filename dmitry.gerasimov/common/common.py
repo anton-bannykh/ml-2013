@@ -32,6 +32,19 @@ def add_bias(data_set):
         ud.append(Entry(id = d.id, correct = d.correct, features = numpy.append(d.features, 1.0)))
     return ud
 
+def normalize(data):
+    dim = len(data[0].features)
+    mins = [min([d.features[j] for d in data]) for j in range(dim)]
+    maxes = [max([d.features[j] for d in data]) for j in range(dim)]
+    #print(mins)
+    #print(maxes)
+    for d in data:
+        for j in range(dim):
+            if mins[j] == maxes[j]:
+                d.features[j] = 1.0
+            else:
+                d.features[j] = (d.features[j] - mins[j]) / (maxes[j] - mins[j])
+
 def error_rate(results):
     fp = results.count(Result.FP)
     fn = results.count(Result.FN)

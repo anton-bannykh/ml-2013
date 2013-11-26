@@ -79,5 +79,5 @@ output content = do
 
 main :: IO ()
 main = do
-    file <- readFile "wdbc.data"
+    file <- readFile "../data/wdbc.data"
     output file

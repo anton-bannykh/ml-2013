@@ -38,4 +38,3 @@ divide3 p1 p2 as = (xs, ys, zs) where
 divide2 :: Double -> [a] -> ([a], [a])
 divide2 p as = splitAt (round(p * (fromIntegral n))) as where
   n = L.length as
- 

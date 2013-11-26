@@ -5,12 +5,6 @@ import qualified Data.Vector as V
 
 import WDBC.Core
 
-proportion :: Double
-proportion = 0.1
-divide :: [a] -> ([a], [a])
-divide as = splitAt (round(proportion * (fromIntegral n))) as where
-  n = L.length as
-                     
 trainIterations :: Int
 trainIterations = 1000
 train :: [DataSetItem] -> V.Vector FPType
@@ -31,6 +25,6 @@ classify a b = if (V.foldr1 (+) (V.zipWith (*) a b)) >= 0 then 1 else -1
 
 perceptron :: [DataSetItem] -> Stats
 perceptron dataset = stats where
-  (testSet, trainSet) = divide dataset
+  (testSet, trainSet) = divide2 0.1 dataset
   w = (train trainSet)
   stats = runTest testSet (classify w)

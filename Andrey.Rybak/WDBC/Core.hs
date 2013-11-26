@@ -2,10 +2,13 @@ module WDBC.Core
        (FPType,
         DataSetItem(..),
         Stats,
-        runTest
+        runTest,
+        divide2,
+        divide3
         ) where
 
 import qualified Data.Vector as V
+import qualified Data.List as L
 
 type FPType = Double
 
@@ -27,3 +30,12 @@ runTest ts p = testAUX 0 0 0 0 ts where
       then testAUX fp tp fn (tn + 1) xs
       else testAUX (fp + 1) tp fn tn xs where ans = p (attr x)
 
+divide3 :: Double -> Double -> [a] -> ([a], [a], [a])
+divide3 p1 p2 as = (xs, ys, zs) where
+  (xs, rest) = divide2 p1 as
+  (ys, zs) = divide2 (p2 / (1.0 - p1)) rest
+
+divide2 :: Double -> [a] -> ([a], [a])
+divide2 p as = splitAt (round(p * (fromIntegral n))) as where
+  n = L.length as
+ 

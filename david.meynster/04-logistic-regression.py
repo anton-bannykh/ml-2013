@@ -2,15 +2,14 @@ from ml import logistic
 from ml.data import *
 
 def optimize_regularization(data):
-    reg_best, err_best = 0, 0
+    reg_best, err_best = 0, 10
     data_train, data_test = split(data)
     for d in range(-40, 10):
         reg_current = 2 ** d
         theta = logistic.train(data_train, l=reg_current)
         err_current = logistic.average_error(data_test, theta)
-        print(str(reg_current) + " " + str(err_current))
         if err_best > err_current:
-            reg_best, f1_best = reg_current, err_current
+            reg_best, err_best = reg_current, err_current
     return reg_best
 
 def main():

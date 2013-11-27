@@ -3,13 +3,12 @@ from numpy.linalg import norm
 import scipy.optimize as opt
 import main
 
-def train(data, c=0):
+def train(data, lymbda=0):
     x, y = data[:, :-1], data[:, -1]
     n, d = x.shape
     def f(theta):
         theta0, theta1 = theta[-1], theta[:-1]
-        a = y * (np.dot(x, theta1) + theta0)
-        return 0.5 * norm(theta1) + c * sum(1 - a[a < 1])
+        return 0.5 * lymbda * norm(theta1) + sum(np.log(1. + np.exp(-y * (np.dot(theta1, x.T) + theta0))))
     return opt.minimize(f, np.zeros(d + 1)).x
 
 def testing(data, theta):
@@ -37,15 +36,16 @@ def testing(data, theta):
     return result
 
 def optimize_regularization(data):
-    c_best, f1_best = 0, 0
+    lymbda_best, f1_best = 0, 0
     data_train, data_test = main.split(data, 0.5)
-    for d in range(-10, 10):
-        c = 2 ** d
-        theta = train(data_train, c=c)
+    for d in range(-7, 10):
+        lymbda = 2 ** d
+        theta = train(data_train, lymbda=lymbda)
         res = testing(data_test, theta)
         f1_cur = res['f1']
-        print("Current c: %.5f" % c)
+        print("Current lymbda: %.5f" % lymbda)
         if f1_best < f1_cur:
-            c_best, f1_best = c, f1_cur
+            lymbda_best, f1_best = lymbda, f1_cur
             print("Now best F1: %.5f" % f1_best)
-    return c_best
+
+    return lymbda_best

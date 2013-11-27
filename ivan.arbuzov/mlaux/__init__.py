@@ -2,10 +2,13 @@ from urllib import urlopen
 import numpy as np
 from os.path import exists
 
+
 class Statistic:
     true_pos, false_pos, true_neg, false_neg = 0, 0, 0, 0
 
-    def __init__(self, pred, y):
+    def __init__(self, pred=None, y=None):
+        if pred is None or y is None:
+            return
         for i in range(len(y)):
             if pred[i] == 1 and y[i] == 1:
                 self.true_pos += 1

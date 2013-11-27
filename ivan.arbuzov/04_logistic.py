@@ -30,7 +30,6 @@ def opt_lambda(data):
         lam = 2 ** d
         theta = train(data_train, lam=lam)
         err = avgerr(data_test, theta)
-        print(str(lam) + " " + str(err))
         if err_best > err:
             reg_best, f1_best = lam, err
     return reg_best

@@ -2,7 +2,7 @@ import numpy as np
 import scipy.optimize as spopt
 
 maxIters = 500
-debugOutput = True
+debugOutput = False
 
 def learn(X, Y, L):
     assert len(X) == len(Y)
@@ -13,8 +13,9 @@ def learn(X, Y, L):
     x0 = np.zeros(dimX)
     #theta = spopt.fmin_cg(f, x0, fprime=fPrime, args=args, maxiter=maxIters, disp=debugOutput)
     theta = spopt.fmin_bfgs(f, x0, fprime=fPrime, args=args, maxiter=maxIters, disp=debugOutput)
+    #theta, opt, dct = spopt.fmin_l_bfgs_b(f, x0, fprime=fPrime, args=args, maxiter=maxIters, disp=debugOutput, m=10000)
 
-    return lambda x: classify(x, theta.copy())
+    return lambda x: classify(x, theta)
 
 
 def f(theta, *args):
@@ -45,9 +46,9 @@ def prob(x, theta):
 
 
 def sigmoid(x):
-    if x < -200:
+    if x < -100:
         return 0
-    if x > 200:
+    if x > 100:
         return 1
     return 1.0 / (1 + np.exp(-x))
 

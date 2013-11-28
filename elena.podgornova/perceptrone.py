@@ -29,4 +29,4 @@ def test(x, y, t):
 				res[1][0]+=1
 			else:
 				res[1][1]+=1
-	return res[0][0]/(res[0][0] + res[0][1]), res[0][0]/(res[0][0] + res[1][0]), (res[0][1] + res[1][0])/len(x)
+	return res[0][0]/(res[0][0] + res[0][1]), res[0][0]/(res[0][0] + res[1][0])

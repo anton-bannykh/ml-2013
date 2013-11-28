@@ -77,11 +77,11 @@ def f1score(X, Y, classifier):
 
 
 def plotErrors(cRange, trainErrors, crossvalErrors):
-    pyplot.plot(cRange, trainErrors, label='Training set error')
-    pyplot.plot(cRange, crossvalErrors, label='Cross-validation set error')
-    pyplot.legend()
-    pyplot.xscale('log')
-    pyplot.xlabel('L')
-    pyplot.ylabel('Error')
-    pyplot.show()
-    return
+    with pyplot.xkcd():
+        pyplot.plot(cRange, trainErrors, label='Training set error')
+        pyplot.plot(cRange, crossvalErrors, label='Cross-validation set error')
+        pyplot.legend()
+        pyplot.xscale('log')
+        pyplot.xlabel('L')
+        pyplot.ylabel('Error')
+        pyplot.show()

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as pyplot
 import perceptron
 
-max_iters = 200
+max_iters = 100
 train_rate = 0.6
 crossval_rate = 0.2
 assert (train_rate + crossval_rate < 1)
@@ -57,10 +57,11 @@ def learn(X, Y):
 
 
 def plotErrors(check_iters, trainErrors, crossvalErrors):
-    pyplot.plot(check_iters, trainErrors, label='Training set error')
-    pyplot.plot(check_iters, crossvalErrors, label='Cross-validation set error')
-    pyplot.legend()
-    pyplot.xlabel('Iterations')
-    pyplot.ylabel('Error')
-    pyplot.show()
+    with pyplot.xkcd():
+        pyplot.plot(check_iters, trainErrors, label='Training set error')
+        pyplot.plot(check_iters, crossvalErrors, label='Cross-validation set error')
+        pyplot.legend()
+        pyplot.xlabel('Iterations')
+        pyplot.ylabel('Error')
+        pyplot.show()
     return

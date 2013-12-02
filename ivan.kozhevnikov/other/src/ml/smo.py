@@ -5,14 +5,16 @@ import random as rd
 class Smo:
     def __init__(self, c, vectors, classes, tolerance, kernel):
         m = len(vectors)
+        self.vectors = vectors
+        self.m = m
+        self.n = len(vectors[0])
+        self.normilize()
         kernel_matrix = matrix(0., (m, m))
-        for i in range(0, m):
-            for j in range(0, m):
+        for i in xrange(0, m):
+            for j in xrange(0, m):
                 kernel_matrix[i, j] = kernel(vectors[i], vectors[j])
         self.kernel_matrix = kernel_matrix
         self.kernel = kernel
-        self.m = m
-        self.vectors = vectors
         self.y = classes
         self.alphas = [0] * m
         self.b = 0
@@ -22,17 +24,26 @@ class Smo:
         self.tune()
         self.b = self.calculate_b()
 
+    def normilize(self):
+        feature_vectors = [[vector[i] for vector in self.vectors] for i in xrange(self.n)]
+        self.means = [sum(feature_vectors[i]) / float(self.m) for i in xrange(self.n)]
+        self.norm = [max(feature_vectors[i]) - min(feature_vectors[i]) for i in xrange(self.n)]
+        for vector in self.vectors:
+            for i in xrange(self.n):
+                vector[i] = (vector[i] - self.means[i]) / self.norm[i]
+
+
     def tune(self):
         passes = 0
         count = 0
-        while passes < 4:
+        while passes < 10:
             changed_alphas = False
             count += 1
             if count % 100 == 0:
                 print("100 iterations passed")
                 print(self.optimized_function())
-            for p in range(0, self.m):
-                if count % 2 == 0 and (self.alphas[p] < 1e-8 or self.alphas[p] > self.c - 1e-8):
+            for p in xrange(0, self.m):
+                if count % 2 == 0 and (self.alphas[p] < 1e-3 or self.alphas[p] > self.c - 1e-3):
                     continue
                 q = rd.randint(0, self.m - 1)
                 while p == q:
@@ -66,13 +77,13 @@ class Smo:
 
     def calculate_b(self):
         max = self.f(0)
-        for i in range(1, self.m):
+        for i in xrange(1, self.m):
             if self.y[i] == 1 and self.alphas[i] > self.eps:
                 val = self.f(i)
                 if val > max:
                     max = val
         min = self.f(0)
-        for i in range(1, self.m):
+        for i in xrange(1, self.m):
             if self.y[i] == -1 and self.alphas[i] > self.eps:
                 val = self.f(i)
                 if val < min:
@@ -81,8 +92,8 @@ class Smo:
 
     def f(self, i):
         result = self.b
-        for j in range(0, self.m):
-            result += self.y[j] * self.alphas[j] * self.kernel_matrix[i, j]
+        for j in xrange(0, self.m):
+            result += self.y[j] * self.alphas[j] * self.kernel_matrix[j, i]
         return result
 
     def real_f(self, x):
@@ -95,12 +106,14 @@ class Smo:
         result = 0
         for alpha in self.alphas:
             result += alpha
-        for i in range(0, self.m):
-            for j in range(0, self.m):
+        for i in xrange(0, self.m):
+            for j in xrange(0, self.m):
                 result -= 0.5 * self.y[i] * self.y[j] * self.alphas[i] * self.alphas[j] * self.kernel_matrix[i, j]
         return result
 
     def classify(self, x):
+        for i in xrange(self.n):
+            x[i] = (x[i] - self.means[i]) / self.norm[i]
         res = self.real_f(x)
         if res > 0:
             return 1

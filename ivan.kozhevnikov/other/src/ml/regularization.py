@@ -4,7 +4,7 @@ import numpy as np
 
 def build_classifier_get_result(input_data, c, builder):
     np.random.shuffle(input_data)
-    split_index = len(input_data) / 6
+    split_index = int(len(input_data) * 0.2)
     learn_data = input_data[:split_index]
     check_data = input_data[split_index:]
     vectors, classes = zip(*learn_data)

@@ -48,6 +48,11 @@ def print_result(error, recall, precision):
     print("Recall: {0:.4f}".format(recall))
     print("Precision: {0:.4f}".format(precision))
 
+def single_run(builder, file, c):
+    input_data = zip(*read_input(file))
+
+    result = regularization.build_classifier_get_result(input_data, c, builder)
+    print_result(*result)
 
 def run(method_builder, file):
     input_data = zip(*read_input(file))

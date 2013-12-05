@@ -3,6 +3,6 @@ import Perceptron
 
 main :: IO ()
 main = do
-  putStrLn "Percetron :"
+  putStrLn "Perceptron :"
   file <- readFile "data/wdbc.data"
   printTest file perceptron

@@ -24,7 +24,7 @@ bestHLSize = input_layer_size;
 
 st = floor(length(trainSety)/parts);
 
-for hidden_layer_size = 10:25
+for hidden_layer_size = 1:25
 	for i = 1:10
 		lambda = (2.0 ^ i) / 100.0;
 		

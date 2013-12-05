@@ -42,7 +42,6 @@ for hidden_layer_size = 10:25
 									   input_layer_size, ...
 									   hidden_layer_size, ...
 									   num_labels, trainSetX(lMask, :), trainSety(lMask), lambda);
-			options = optimset('MaxIter', 50);
 			
 			[nn_params, cost] = fminsearch(costFunction, initial_nn_params);
 			
@@ -56,12 +55,12 @@ for hidden_layer_size = 10:25
 			curError = curError + mean(double(pred ~= trainSety(tMask)));
         end
 		
-		curError = curError / parts
+		curError = curError / parts;
 		
 		if curError < bestError
-			bestError = curError
-			bestC = lambda
-			bestHLSize = hidden_layer_size
+			bestError = curError;
+			bestC = lambda;
+			bestHLSize = hidden_layer_size;
         end
     end
 end

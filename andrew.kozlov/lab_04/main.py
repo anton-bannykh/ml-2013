@@ -1,14 +1,14 @@
 import numpy
 from numpy.numarray import zeros
 from lab_01.main import divide, percent, load_data
-from lab_04.linear_regression import optimize_constant, linear_regression_w, calculate_error, line_length
+from lab_04.linear_regression import optimize_constant, linear_regression_w, calculate_error, line_len
 
 
 __author__ = 'adkozlov'
 
 
 def scale(data):
-    m = line_length(data)
+    m = line_len(data)
     x_min, x_max = numpy.array([1e10] * m), zeros(m)
 
     for (x, _) in data:

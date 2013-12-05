@@ -26,13 +26,13 @@ def calculate_error(data, w):
     return count / len(data)
 
 
-def line_length(data):
+def line_len(data):
     x, _ = data[0]
     return len(x)
 
 
 def linear_regression_w(data, c, exp_value=20, eps=0.1, rate=0.01):
-    m = line_length(data)
+    m = line_len(data)
     w = numpy.zeros(m)
 
     dif_prev = 0

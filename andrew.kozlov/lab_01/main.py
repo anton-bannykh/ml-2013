@@ -15,8 +15,9 @@ def load_data(positive=1, negative=-1):
     return result
 
 
-def divide(data, fraction=0.1):
+def divide(data, fraction=0.1, speed_fraction=1.0):
     np.random.shuffle(data)
+    data = data[:int(len(data) * speed_fraction)]
     test_len = int(len(data) * fraction)
     return data[test_len:], data[:test_len]
 

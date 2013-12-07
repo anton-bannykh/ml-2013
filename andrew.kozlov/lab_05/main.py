@@ -7,8 +7,8 @@ __author__ = 'adkozlov'
 def main():
     train_set, test_set = divide(load_data(negative=0))
 
-    size, lambda_c = optimize_size_lambda(train_set)
-    theta1, theta2 = thetas(train_set, lambda_c)
+    size, lambda_c = optimize_size_lambda(train_set, 2)
+    theta1, theta2 = thetas(train_set, size, lambda_c, 2)
 
     print('hidden layer size = %d' % size)
     print('lambda = %f' % lambda_c)

@@ -5,7 +5,7 @@ __author__ = 'adkozlov'
 
 
 def main():
-    train_set, test_set = divide(load_data())
+    train_set, test_set = divide(load_data(negative=0))
 
     size, lambda_c = optimize_size_lambda(train_set)
     theta1, theta2 = thetas(train_set, lambda_c)

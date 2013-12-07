@@ -4,13 +4,13 @@ from lab_01.perceptron import *
 __author__ = 'adkozlov'
 
 
-def load_data():
+def load_data(positive=1, negative=-1):
     result = []
 
     file = urlopen("http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data")
     for line in file.readlines():
         array = line.decode("utf-8").split(',')
-        result.append(([1.0] + [float(f) for f in array[2:]], 1 if array[1] == "M" else -1))
+        result.append(([1.0] + [float(f) for f in array[2:]], positive if array[1] == "M" else negative))
 
     return result
 

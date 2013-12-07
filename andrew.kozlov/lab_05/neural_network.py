@@ -1,5 +1,5 @@
 import numpy as np
-import scipy.optimize
+from scipy.optimize import fmin
 from lab_04.linear_regression import line_len
 
 __author__ = 'adkozlov'
@@ -13,16 +13,17 @@ def sigmoid_gradient(z):
     return sigmoid(z) * (1 - sigmoid(z))
 
 
-def initialize_weights(l_in, l_out, eps=0.12):
-    return 2 * np.rand(l_out, 1 + l_in) * eps - eps
+def initialize_weights(l_in, size, eps=0.12):
+    result = np.random.rand(size, l_in + 1)
+    return 2 * result * eps - eps
 
 
 def get_x(data):
-    return [x for (x, _) in data]
+    return np.array([x for (x, _) in data])
 
 
 def get_y(data):
-    return [y for (_, y) in data]
+    return np.array([y for (_, y) in data])
 
 
 def calculate_error(data, theta1, theta2):
@@ -48,11 +49,11 @@ def classify(x, theta1, theta2):
 
 
 def make1d(theta):
-    return np.reshape(theta, theta.size())
+    return np.reshape(theta, theta.size)
 
 
 def reshape(params, l_in, size):
-    return np.reshape(params[:size * (l_in + 1)], size, l_in + 1), np.reshape(params[size * (l_in + 1):], 2, size + 1)
+    return params[:size * (l_in + 1)].reshape((size, l_in + 1)), params[size * (l_in + 1):].reshape((2, size + 1))
 
 
 def sum_squared(theta):
@@ -63,14 +64,16 @@ def cost_function(x, y, lambda_c, params, l_in, size):
     theta1, theta2 = reshape(params, l_in, size)
 
     m = len(x)
-    x = np.append(np.ones(m, 1), x, axis=0)
+    ones = np.array(np.ones((m, 1)))
+    x = np.concatenate((ones, x), axis=1)
 
     j = 0
     theta1_grad = np.zeros(theta1.shape)
     theta2_grad = np.zeros(theta2.shape)
 
     a = sigmoid(x * theta1)
-    a = np.append(np.ones(len(a), 1), a, axis=0)
+    ones = np.array(np.ones((len(a), 1)))
+    a = np.concatenate((ones, a), axis=1)
 
     h = sigmoid(a * theta2)
     y_tmp = [(1, 0) if v == 0 else (0, 1) for v in y]
@@ -101,14 +104,14 @@ def thetas(data, size, lambda_c):
     theta1 = initialize_weights(l_in, size)
     theta2 = initialize_weights(size, 2)
 
-    cost = lambda p: cost_function(get_x(data), get_y(data), p, l_in, size)
-    params = scipy.optimize.fmin(cost, [make1d(theta1), make1d(theta2)])
+    cost = lambda p: cost_function(get_x(data), get_y(data), lambda_c, p, l_in, size)
+    params = fmin(cost, np.append(theta1, theta2))
 
     return reshape(params, l_in, size)
 
 
 def cross_validate(data, hidden_layer_size, lambda_c, n=5):
-    step = len(data // n)
+    step = len(data) // n
 
     result = 0
     for i in range(0, len(data), step):

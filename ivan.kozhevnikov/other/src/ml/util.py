@@ -13,7 +13,20 @@ def read_input(file):
             clazz = 1
         vectors.append(vector)
         classes.append(clazz)
+    normilize(vectors)
     return vectors, classes
+
+
+def normilize(vectors):
+    n = len(vectors[0])
+    m = len(vectors)
+    feature_vectors = [[vector[i] for vector in vectors] for i in xrange(n)]
+    means = [sum(feature_vectors[i]) / float(m) for i in xrange(n)]
+    norm = [max(feature_vectors[i]) - min(feature_vectors[i]) for i in xrange(n)]
+    for vector in vectors:
+        for i in xrange(n):
+            vector[i] = (vector[i] - means[i]) / norm[i]
+    return vectors
 
 
 def calc_score(test, classifier):
@@ -48,11 +61,13 @@ def print_result(error, recall, precision):
     print("Recall: {0:.4f}".format(recall))
     print("Precision: {0:.4f}".format(precision))
 
+
 def single_run(builder, file, c):
     input_data = zip(*read_input(file))
 
     result = regularization.build_classifier_get_result(input_data, c, builder)
     print_result(*result)
+
 
 def run(method_builder, file):
     input_data = zip(*read_input(file))

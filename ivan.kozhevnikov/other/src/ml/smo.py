@@ -8,7 +8,6 @@ class Smo:
         self.vectors = vectors
         self.m = m
         self.n = len(vectors[0])
-        self.normilize()
         kernel_matrix = matrix(0., (m, m))
         for i in xrange(0, m):
             for j in xrange(0, m):
@@ -24,24 +23,12 @@ class Smo:
         self.tune()
         self.b = self.calculate_b()
 
-    def normilize(self):
-        feature_vectors = [[vector[i] for vector in self.vectors] for i in xrange(self.n)]
-        self.means = [sum(feature_vectors[i]) / float(self.m) for i in xrange(self.n)]
-        self.norm = [max(feature_vectors[i]) - min(feature_vectors[i]) for i in xrange(self.n)]
-        for vector in self.vectors:
-            for i in xrange(self.n):
-                vector[i] = (vector[i] - self.means[i]) / self.norm[i]
-
-
     def tune(self):
         passes = 0
         count = 0
         while passes < 10:
             changed_alphas = False
             count += 1
-            if count % 100 == 0:
-                print("100 iterations passed")
-                print(self.optimized_function())
             for p in xrange(0, self.m):
                 if count % 2 == 0 and (self.alphas[p] < 1e-3 or self.alphas[p] > self.c - 1e-3):
                     continue
@@ -112,8 +99,6 @@ class Smo:
         return result
 
     def classify(self, x):
-        for i in xrange(self.n):
-            x[i] = (x[i] - self.means[i]) / self.norm[i]
         res = self.real_f(x)
         if res > 0:
             return 1

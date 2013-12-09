@@ -6,10 +6,10 @@ import numpy
 __author__ = 'jambo'
 
 class DataElement:
-    def __init__(self, data_list):
+    def __init__(self, data_list, add_extra_feature=False):
         self.id = int(data_list[0])
         self.answer = 1 if data_list[1] == 'M' else -1
-        self.features = numpy.array([map(float, data_list[2:])])
+        self.features = numpy.array([[1] + map(float, data_list[2:])])
 
 
 def load_data_from_file():
@@ -34,10 +34,12 @@ def load_cancer_dataset():
         return load_data_from_file()
 
 
-def get_data_set():
-    dataset = [DataElement(list) for list in load_cancer_dataset()]
+def get_data_set(add_extra_feature=False):
+    dataset = [DataElement(list, add_extra_feature=add_extra_feature) for list in load_cancer_dataset()]
     l = len(dataset[0].features[0])
     for i in xrange(l):
+        if add_extra_feature and i == 0:
+            continue
         feature_values = [test.features[0][i] for test in dataset]
         mean = sum(feature_values) / float(len(feature_values))
         norm = max(feature_values) - min(feature_values)

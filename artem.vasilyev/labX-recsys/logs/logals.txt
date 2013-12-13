@@ -1,0 +1,5 @@
+30 factors, 30 PQ steps, λ = 2^-5, ... 2^5
+
+Set #1: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #1: RMSE = 0.8717607033858648, best λ = 0.0625
+Set #1: Leaning done in 5158.572590351105 seconds

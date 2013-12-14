@@ -1,0 +1,17 @@
+ALS1, 30 factors, 10 epochs, L = 2^-5, ..., 2^5
+
+Set #1: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #1: RMSE = 0.8906351706792338, best λ = 0.0625
+Set #1: Leaning done in 2650.2179701328278 seconds
+Set #2: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #2: RMSE = 0.8939915100582645, best λ = 0.0625
+Set #2: Leaning done in 2646.1660821437836 seconds
+Set #3: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #3: RMSE = 0.8854377424163259, best λ = 0.0625
+Set #3: Leaning done in 2642.640296459198 seconds
+Set #4: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #4: RMSE = 0.8911763861130352, best λ = 0.0625
+Set #4: Leaning done in 2642.4199397563934 seconds
+Set #5: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #5: RMSE = 0.8857494377893752, best λ = 0.0625
+Set #5: Leaning done in 2643.124150276184 seconds

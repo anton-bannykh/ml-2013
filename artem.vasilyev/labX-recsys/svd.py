@@ -2,9 +2,9 @@ import numpy as np
 import scipy.optimize as spopt
 
 
-factors = 30
-maxIters = 60
-debugOutput = True
+factors = 50
+maxIters = 100
+debugOutput = False
 
 
 def learn(maxRating, nUsers, nItems, X, Y, L):
@@ -40,7 +40,6 @@ def f(theta, *args):
         trainError += (predicted - rating) ** 2
 
     regError = L * (sum(np.inner(p1, p1) for p1 in p) + sum(np.inner(q1, q1) for q1 in q))
-    print((trainError + regError) / 2)
     return (trainError + regError) / 2
 
 

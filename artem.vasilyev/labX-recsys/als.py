@@ -1,8 +1,7 @@
 import numpy as np
-import scipy.optimize as spopt
 
 factors = 30
-maxIters = 30
+maxIters = 10
 debugOutput = False
 
 
@@ -11,19 +10,20 @@ def learn(maxRating, nUsers, nItems, X, Y, L):
     p = np.random.random((nUsers, factors))
     q = np.random.random((nItems, factors))
 
-    for dummy in range(maxIters):
-        print("Step {0}:".format(dummy))
+    for iter in range(maxIters):
+        if debugOutput:
+            print("Step {0}:".format(iter))
         # P step
         for user in range(nUsers):
-            p[user] = oneStep(user, q, userRates[user], L)
+            p[user] = ridgeRegression(user, q, userRates[user], L)
         # Q step
         for item in range(nItems):
-            q[item] = oneStep(item, p, itemRates[item], L)
+            q[item] = ridgeRegression(item, p, itemRates[item], L)
 
     return lambda t: np.inner(p[t[0]], q[t[1]])
 
 
-def oneStep(user, q, userRates, L):
+def ridgeRegression(user, q, userRates, L):
     if len(userRates) == 0:
         return np.zeros(factors)
 

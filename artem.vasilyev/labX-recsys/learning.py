@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as pyplot
-import svd
 import errors
 
-trainRatio = 0.75
-maxL = 3
+trainRatio = 0.8
+maxL = 5
 lRange = 2.0 ** np.arange(-maxL, maxL + 1)
+methodName = 'als1'
 
 
 def learn(maxRating, nUsers, nItems, X, Y, testX):
@@ -21,22 +21,36 @@ def learn(maxRating, nUsers, nItems, X, Y, testX):
     #print(trainX, trainY)
     #print(crossvalX, crossvalY)
 
-    recs = [svd.learn(maxRating, nUsers, nItems, trainX, trainY, L) for L in lRange]
+    learningMethod = methodByName(methodName)
+    recs = [learningMethod(maxRating, nUsers, nItems, trainX, trainY, L) for L in lRange]
 
     trainErrors = [errors.rmse(recommend(rec, trainX), trainY) for rec in recs]
     crossvalErrors = [errors.rmse(recommend(rec, crossvalX), crossvalY) for rec in recs]
 
-    plotErrors(lRange, trainErrors, crossvalErrors)
-    bestError, bestC, bestRec = min(zip(crossvalErrors, lRange, recs))
+    #plotErrors(lRange, trainErrors, crossvalErrors)
+    bestError, bestL, bestRec = min(zip(crossvalErrors, lRange, recs))
 
     #print(recommend(bestRec, trainX))
 
-    testY = list(recommend(bestRec, testX))
+    testY = recommend(bestRec, testX)
     #print(testY)
     for i in range(len(testX)):
         testY[i] += movieMean[testX[i][1]]
 
-    return testY
+    return bestL, testY
+
+
+def methodByName(name):
+    if name == 'svd':
+        import svd
+        return svd.learn
+    elif name == 'als':
+        import als
+        return als.learn
+    elif name == 'als1':
+        import als1
+        return als1.learn
+    return None
 
 
 def recommend(rec, X):

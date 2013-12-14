@@ -1,9 +1,8 @@
 import numpy as np
-import scipy.optimize as spopt
 
-factors = 10
+factors = 30
 maxIters = 10
-debugOutput = True
+debugOutput = False
 
 
 def learn(maxRating, nUsers, nItems, X, Y, L):
@@ -24,27 +23,22 @@ def learn(maxRating, nUsers, nItems, X, Y, L):
     return lambda t: np.inner(p[t[0]], q[t[1]])
 
 
-def ridgeRegression1(user, q, init, userRates, L, cycles=1):
+def ridgeRegression1(user, q, init, userRates, L):
     if len(userRates) == 0:
         return init
 
-    X = np.array([q[item] for item, rating in userRates])
-    Y = np.array([rating for item, rating in userRates])
-    error = np.array([y - np.inner(init, x) for x, y in zip(X, Y)])
-    for cycle in range(cycles):
-        for k in range(factors):
-            for i in range(len(X)):
-                error[i] += X[i][k] * init[k]
+    X = np.array([q[item] for item, rating in userRates]).T
+    error = np.array([rating - np.inner(init, q[item]) for item, rating in userRates])
+    precalcA = np.array([np.sum(x ** 2) for x in X])
 
-            init[k] = 0
-            a, d = 0, 0
-            for i in range(len(X)):
-                a += X[i][k] * X[i][k]
-                d += X[i][k] * error[i]
+    for k in range(factors):
+        error += X[k] * init[k]
 
-            init[k] = d / (L + a)
-            for i in range(len(X)):
-                error[i] -= X[i][k] * init[k]
+        init[k] = 0
+        a, d = precalcA[k], sum(X[k] * error)
+
+        init[k] = d / (L * len(userRates) + a)
+        error -= X[k] * init[k]
 
     return init
 

@@ -4,7 +4,7 @@ from learning import learn
 
 
 dataFolder = "itmo-recsys-data/"
-setsN = 1
+setsN = 5
 setFiles = range(1, setsN + 1)
 
 
@@ -25,8 +25,8 @@ def solveOne(setN, setName, ansName):
                                                                                                        nItems,
                                                                                                        len(trainX),
                                                                                                        len(testX)))
-    predictedRs = learn(maxRating, nUsers, nItems, trainX, trainY, testX)
-    print("Set #{0}: RMSE = {1}".format(setN, errors.rmse(predictedRs, testY)))
+    bestL, predictedRs = learn(maxRating, nUsers, nItems, trainX, trainY, testX)
+    print("Set #{0}: RMSE = {1}, best λ = {2}".format(setN, errors.rmse(predictedRs, testY), bestL))
     endTime = time()
     print("Set #{0}: Leaning done in {1} seconds".format(setN, endTime - startTime))
 

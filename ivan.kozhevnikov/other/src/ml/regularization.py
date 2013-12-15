@@ -16,7 +16,7 @@ def find_regularization_const(input_data, builder):
     iterations = 3
     best_result = None
     best_c = None
-    for power in range(-3, 5):
+    for power in range(-3, 4):
         c = 2 ** power
         print("Trying C: " + str(c))
         f_metric = 0

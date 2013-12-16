@@ -16,24 +16,16 @@ def learn(maxRating, nUsers, nItems, X, Y, testX):
     trainX, trainY = X[:trainSize], Y[:trainSize]
     crossvalX, crossvalY = X[trainSize:], Y[trainSize:]
 
-    #print(X, Y)
-
-    #print(trainX, trainY)
-    #print(crossvalX, crossvalY)
-
     learningMethod = methodByName(methodName)
     recs = [learningMethod(maxRating, nUsers, nItems, trainX, trainY, L) for L in lRange]
 
     trainErrors = [errors.rmse(recommend(rec, trainX), trainY) for rec in recs]
     crossvalErrors = [errors.rmse(recommend(rec, crossvalX), crossvalY) for rec in recs]
 
-    #plotErrors(lRange, trainErrors, crossvalErrors)
+    plotErrors(lRange, trainErrors, crossvalErrors)
     bestError, bestL, bestRec = min(zip(crossvalErrors, lRange, recs))
 
-    #print(recommend(bestRec, trainX))
-
     testY = recommend(bestRec, testX)
-    #print(testY)
     for i in range(len(testX)):
         testY[i] += movieMean[testX[i][1]]
 

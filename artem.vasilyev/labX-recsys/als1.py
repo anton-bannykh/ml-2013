@@ -2,7 +2,7 @@ import numpy as np
 
 factors = 30
 maxIters = 10
-debugOutput = False
+debugOutput = True
 
 
 def learn(maxRating, nUsers, nItems, X, Y, L):
@@ -15,15 +15,15 @@ def learn(maxRating, nUsers, nItems, X, Y, L):
             print("Step {0}:".format(it))
         # P step
         for user in range(nUsers):
-            p[user] = ridgeRegression1(user, q, p[user], userRates[user], L)
+            p[user] = ridgeRegression1(q, p[user], userRates[user], L)
         # Q step
         for item in range(nItems):
-            q[item] = ridgeRegression1(item, p, q[item], itemRates[item], L)
+            q[item] = ridgeRegression1(p, q[item], itemRates[item], L)
 
     return lambda t: np.inner(p[t[0]], q[t[1]])
 
 
-def ridgeRegression1(user, q, init, userRates, L):
+def ridgeRegression1(q, init, userRates, L):
     if len(userRates) == 0:
         return init
 

@@ -12,8 +12,6 @@ def main():
     for i in setFiles:
         setName = dataFolder + "movielensfold{0}.txt".format(i)
         ansName = dataFolder + "movielensfold{0}ans.txt".format(i)
-        #setName = dataFolder + "test{0}.txt".format(i)
-        #ansName = dataFolder + "test{0}ans.txt".format(i)
         solveOne(i, setName, ansName)
 
 

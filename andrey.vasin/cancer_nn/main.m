@@ -25,8 +25,10 @@ bestHLSize = input_layer_size;
 st = floor(length(trainSety)/parts);
 
 for hidden_layer_size = 1:25
+    disp(['Layer size = ', num2str(hidden_layer_size)])
 	for i = 1:10
 		lambda = (2.0 ^ i) / 100.0;
+        disp(['Lambda = ', num2str(lambda)])
 		
 		curError = 0.0;
 		
@@ -42,8 +44,9 @@ for hidden_layer_size = 1:25
 									   input_layer_size, ...
 									   hidden_layer_size, ...
 									   num_labels, trainSetX(lMask, :), trainSety(lMask), lambda);
-			
-			[nn_params, cost] = fminsearch(costFunction, initial_nn_params);
+									   
+			options = optimset('MaxIter', 50);
+			[nn_params, cost] = fmincg(costFunction, initial_nn_params, options);
 			
 			Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
 					 hidden_layer_size, (input_layer_size + 1));
@@ -77,7 +80,8 @@ costFunction = @(p) nnCostFunction(p, ...
 						   hidden_layer_size, ...
 						   num_labels, trainSetX, trainSety, lambda);
 
-[nn_params, cost] = fminsearch(costFunction, initial_nn_params);
+options = optimset('MaxIter', 50);
+[nn_params, cost] = fmincg(costFunction, initial_nn_params, options);
 
 Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
 		 hidden_layer_size, (input_layer_size + 1));

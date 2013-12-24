@@ -20,7 +20,7 @@ def initialize(data, lengths, factors):
         bu[u] = bu[u] / nu[u] if nu[u] != 0 else 0
     return mu, bu, bi, p, q
 
-def learn(data, lengths, lam, gamma, iterations=10, factors=5):
+def learn(data, lengths, lam, gamma, iterations=10, factors=50):
     np.seterr(all='raise')
     mu, bu, bi, p, q = initialize(data, lengths, factors)
     gamma1, gamma2 = gamma
@@ -47,4 +47,6 @@ def learn(data, lengths, lam, gamma, iterations=10, factors=5):
 def rmse(data, predict):
     predictions = np.array([predict(u, i) for u, i, _ in data])
     answers = data[:, 2]
-    return np.sqrt(np.mean(predictions - answers) ** 2)
+    #for r, rp in zip(answers, predictions):
+    #    print(r, rp, r - rp)
+    return np.sqrt(np.mean((predictions - answers) ** 2))

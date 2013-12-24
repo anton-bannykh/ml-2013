@@ -24,6 +24,20 @@ def load_cancer_dataset():
 
     return x, y
 
+def load_movielens_dataset(number=0):
+    train = open("itmo-recsys-data/movielensfold" + str(number) + ".txt", 'r')
+    test = open("itmo-recsys-data/movielensfold" + str(number) + "ans.txt", 'r')
+    _, nu, ni, ntrain, ntest = [int(x) for x in train.readline().split()]
+    train_data, test_data = np.empty((ntrain, 3), dtype=int), np.empty((ntest, 3), dtype=int)
+    for i in range(ntrain):
+        train_data[i] = [int(x) for x in train.readline().split()]
+    for i in range(ntest):
+        test_data[i][:2] = [int(x) for x in train.readline().split()]
+    # ans-file -- only ratings, add also u and i to test_data!!!
+    for i in range(ntest):
+        test_data[i][2] = int(test.readline())
+    return train_data, test_data, (nu, ni)
+
 def split(data, fraction=0.2, shuffle=True):
     if shuffle:
         np.random.shuffle(data)

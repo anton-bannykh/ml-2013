@@ -4,7 +4,7 @@ from learning import learn
 
 
 dataFolder = "itmo-recsys-data/"
-setsN = 5
+setsN = 1
 setFiles = range(1, setsN + 1)
 
 

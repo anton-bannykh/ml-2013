@@ -9,6 +9,11 @@ def learn(maxRating, nUsers, nItems, X, Y, L):
     userRates, itemRates = getRates(nUsers, nItems, X, Y)
     p = np.random.random((nUsers, factors))
     q = np.random.random((nItems, factors))
+    for u in range(nUsers):
+        p[u][0] = 1
+    for i in range(nItems):
+        q[i][1] = 1
+
     if debugOutput:
         print("Learning for L = {0}".format(L))
     for iter in range(maxIters):
@@ -16,15 +21,15 @@ def learn(maxRating, nUsers, nItems, X, Y, L):
             print("Step {0}:".format(iter))
         # P step
         for user in range(nUsers):
-            p[user] = ridgeRegression(q, userRates[user], L)
+            p[user] = ridgeRegression(q, userRates[user], L, 0)
         # Q step
         for item in range(nItems):
-            q[item] = ridgeRegression(p, itemRates[item], L)
+            q[item] = ridgeRegression(p, itemRates[item], L, 1)
 
     return lambda t: np.inner(p[t[0]], q[t[1]])
 
 
-def ridgeRegression(q, userRates, L):
+def ridgeRegression(q, userRates, L, saveCol):
     if len(userRates) == 0:
         return np.zeros(factors)
 
@@ -41,6 +46,7 @@ def ridgeRegression(q, userRates, L):
 
     try:
         result = np.linalg.solve(A, d)
+        result[saveCol] = 1
         return result
     except np.linalg.LinAlgError:
         return np.zeros(factors)

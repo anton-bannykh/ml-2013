@@ -4,7 +4,7 @@ import errors
 
 trainRatio = 0.8
 maxL = 5
-lRange = 2.0 ** np.arange(-maxL, maxL + 1)
+lRange = 2.0 ** np.arange(-maxL, 1)
 methodName = 'als1'
 
 

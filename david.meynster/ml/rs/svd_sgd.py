@@ -4,7 +4,6 @@ from random import random
 
 def initialize(data, lengths, factors):
     mu = np.average(data[:, 2])
-    #print(mu)
     ulen, ilen = lengths[0], lengths[1]
     p, q = randvec((ulen, factors)) - 0.5, randvec((ilen, factors)) - 0.5
     nu, bu = np.zeros(ulen), np.zeros(ulen)
@@ -21,7 +20,6 @@ def initialize(data, lengths, factors):
     return mu, bu, bi, p, q
 
 def learn(data, lengths, lam, gamma, iterations=10, factors=50):
-    np.seterr(all='raise')
     mu, bu, bi, p, q = initialize(data, lengths, factors)
     gamma1, gamma2 = gamma
     lam1, lam2 = lam
@@ -30,23 +28,18 @@ def learn(data, lengths, lam, gamma, iterations=10, factors=50):
         return mu + bu[u] + bi[i] + np.dot(p[u], q[i])
 
     for iter in range(iterations):
-        print("RMSE after ", iter, " iterations: ", rmse(data, predict))
+        #print("RMSE after ", iter, " iterations: ", rmse(data, predict))
         for u, i, r in data:
             err = r - predict(u, i)
-            #print("(%i, %i, %i): error = %6.2f" % (u, i, r, err))
             bu[u] += gamma1 * (err - lam1 * bu[u])
             bi[i] += gamma1 * (err - lam1 * bi[i])
             pu1 = p[u] + gamma2 * (err * q[i] - lam2 * p[u])
             qi1 = q[i] + gamma2 * (err * p[u] - lam2 * q[i])
             p[u], q[i] = pu1, qi1
-            #print(bu[u], bi[i], p[u], q[i])
-            #print(bu1, bi1, p1, q1)
 
     return predict
 
 def rmse(data, predict):
     predictions = np.array([predict(u, i) for u, i, _ in data])
     answers = data[:, 2]
-    #for r, rp in zip(answers, predictions):
-    #    print(r, rp, r - rp)
     return np.sqrt(np.mean((predictions - answers) ** 2))

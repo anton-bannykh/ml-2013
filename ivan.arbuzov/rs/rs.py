@@ -4,14 +4,6 @@ import numpy as np
 from numpy.random import random as randvec
 from itertools import product
 
-
-# (1.0, 1.0, 0.0039135393000000011, 0.0039135393000000011)
-# 0.959620594213
-# (1.0, 1.0, 0.0039135393000000011, 0.0012914679690000004)
-# 0.959962182021
-# (1.0, 1.0, 0.0039135393000000011, 0.00042618442977000016)
-
-
 def RMSE(data, predictor):
     predictor = predictor or (lambda u, i: 0)
     predictions = np.array([predictor(u, i) for u, i, x in data])
@@ -82,10 +74,6 @@ def regularize(train_set, validation_set, user_len, item_len):
     predictor_best = None
     for gamma1, gamma2 in [(0.0013, 0.0013)]:#product(0.33 ** np.array([5.5, 6.0, 6.5]), repeat=2):
         for lam1, lam2 in [(0.5, 0.005), (1, 0.01)]:#product([1, 0.01, 0.02, 0.008], repeat=2):
-    # lam1 = 0.01
-    # lam2 = 1
-    # gamma1 = 0.33 ** 6.0
-    # gamma2 = 0.33 ** 6.0
             predictor = sgd(train_set, user_len, item_len, lam1, lam2, gamma1, gamma2)
             rmse = RMSE(validation_set, predictor)
             print '[INFO] rmse = %.6f' % rmse
@@ -105,3 +93,10 @@ for n in xrange(1, 6):
     l1, l2, g1, g2, predictor = regularize(train_set, validation_set, user_len, item_len)
     rmse = RMSE(test_data, predictor)
     print 'dataset #%d, rmse: %.6f, λ1 = %.6f, λ2 = %.6f, ɣ1 = %.6f, ɣ2 = %.6f' % (n, rmse, l1, l2, g1, g2)
+
+
+# dataset #1, rmse: 0.915550, λ1 = 0.050000, λ2 = 0.050000, ɣ1 = 0.005000, ɣ2 = 0.005000
+# dataset #2, rmse: 0.916771, λ1 = 0.050000, λ2 = 0.050000, ɣ1 = 0.005000, ɣ2 = 0.005000
+# dataset #3, rmse: 0.913951, λ1 = 0.050000, λ2 = 0.050000, ɣ1 = 0.005000, ɣ2 = 0.005000
+# dataset #4, rmse: 0.922094, λ1 = 0.050000, λ2 = 0.050000, ɣ1 = 0.005000, ɣ2 = 0.005000
+# dataset #5, rmse: 0.916731, λ1 = 0.050000, λ2 = 0.050000, ɣ1 = 0.005000, ɣ2 = 0.005000

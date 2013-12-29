@@ -1,1 +1,0 @@
-PYTHONPATH=. python3 svm-kernel.py

@@ -1,0 +1,17 @@
+100 iterations of optimization method, 50 factors, λ = 2^0, ..., 2^10
+
+Set #1: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #1: RMSE = 0.8819367472740977, best L = 16.0
+Set #1: Leaning done in ? seconds
+Set #2: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #2: RMSE = 0.882599159038159, best L = 16.0
+Set #2: Leaning done in 5115.5758538246155 seconds
+Set #3: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #3: RMSE = 0.8806346136532769, best L = 16.0
+Set #3: Leaning done in 5032.933918714523 seconds
+Set #4: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #4: RMSE = 0.8866006449468757, best L = 16.0
+Set #4: Leaning done in 5079.780745744705 seconds
+Set #5: read 6040 users, 3706 items, 900188 train set ratings and 100020 test set ratings
+Set #5: RMSE = 0.8820782968214945, best L = 16.0
+Set #5: Leaning done in 5014.304210186005 seconds

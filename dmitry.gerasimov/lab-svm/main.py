@@ -4,9 +4,7 @@ from sys import stdin, stdout, stderr
 import numpy
 
 from bcwd import *
-import common
-from common import *
-from perceptron import *
+from svm import *
 
 DATA_DIR = "data"
 TMP_DIR = "tmp"
@@ -24,9 +22,11 @@ TRAIN_SET_PATH = os.path.join(DATA_DIR, TRAIN_SET_NAME)
 TEST_SET_NAME = "test_set"
 TEST_SET_PATH = os.path.join(DATA_DIR, TEST_SET_NAME)
 
-TEST_SET_FRACTION = 0.10
+VALID_SET_NAME = "valid.set"
+VALID_SET_PATH = os.path.join(DATA_DIR, VALID_SET_NAME)
 
-TRAINING_ITERATIONS = 100
+TEST_SET_FRACTION = 0.10
+VALID_SET_FRACTION = 0.10
 
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
@@ -36,52 +36,65 @@ if not os.path.exists(TMP_DIR):
 
 get_data(DATA_URL, DATA_LOCAL_PATH)
 stderr.write("Data set fetched to the file {}\n".format(DATA_LOCAL_PATH))
-stderr.write("Comment the line 35 of main.py to prevent downloading during the further runs\n")
+stderr.write("Comment the line 39 of main.py to prevent downloading during the further runs\n")
 
 data = load_data(DATA_LOCAL_PATH)
 assert len(data) == DATA_SIZE # there should be 569 instances according to the set description
 
-data = add_bias(data)
 
-def run_all(it, data, initial, iterations, verbose = False):
+def run_all(data, verbose = False):
     test_size = int(DATA_SIZE * TEST_SET_FRACTION)
-    train_size = DATA_SIZE - test_size
-    train_set, test_set = split_data(data, train_size, test_size)
+    valid_size = int(DATA_SIZE * VALID_SET_FRACTION)
+    train_size = DATA_SIZE - test_size - valid_size
+    train_set, test_set, valid_set = split_data(data, train_size, test_size, valid_size)
 
     if verbose:
         stderr.write("Train set size: {}\n".format(train_size))
-    if verbose:
         stderr.write("Test set size: {}\n".format(test_size))
+        stderr.write("Valid set size: {}\n".format(valid_size))
+
 
     write_data(train_set, TRAIN_SET_PATH)
     if verbose:
-        stderr.write("Train set dumped to the file {}\n".format(TRAIN_SET_PATH))
+        stderr.write("Train set was dumped to the file {}\n".format(TRAIN_SET_PATH))
     write_data(test_set, TEST_SET_PATH)
     if verbose:
-        stderr.write("Test set dumped to the file {}\n".format(TEST_SET_PATH))
+        stderr.write("Test set was dumped to the file {}\n".format(TEST_SET_PATH))
+    write_data(valid_set, VALID_SET_PATH)
+    if verbose:
+        stderr.write("Valid set was dumped to the file {}\n".format(VALID_SET_PATH))
 
-    theta = initial
-
-    for i in range(iterations):
-        theta = train_perceptron_step(train_set, theta)
+    c = 1.0 / 2 ** 10
+    cv_ans = []
+    for _ in range(40):
         if verbose:
-            test_ans = test_perceptron(test_set, theta)
-            results = calculate_results(test_set, test_ans)
-            stderr.write("Step {}: classification error is {}%\n".format(i, error_rate(results) * 100))
+            stdout.write("C = {}\n".format(c))
 
-    test_ans = test_perceptron(test_set, theta)
+        b, w, _ = train_svm(train_set, c)
+        valid_ans = test_svm(valid_set, b, w)
+        results = calculate_results(valid_set, valid_ans)
+        err_rate = error_rate(results)
+        cv_ans.append((c, err_rate))
+        c *= 2
+
+    if verbose:
+        stderr.write(str(cv_ans) + "\n")
+    bestC = min(cv_ans, key = lambda p: p[1])[0]
+    b, w, _ = train_svm(train_set, bestC)
+    test_ans = test_svm(test_set, b, w)
     results = calculate_results(test_set, test_ans)
 
     err_rate = error_rate(results)
     prec = precision(results)
     rec = recall(results)
     f1 = f1score(results)
+    #print("C = {}, error rate = {}".format(c, err_rate))
 
-    return (theta, err_rate, prec, rec, f1)
+    return (b, w, err_rate, prec, rec, f1)
 
 # random.seed(0) # uncomment to make the program deterministic
 
-cnt = 100
+cnt = 10
 serr = 0.0
 sprec = 0.0
 srec = 0.0
@@ -89,8 +102,8 @@ sf1 = 0.0
 
 for i in range(cnt):
     stderr.write("Running... {}/{}\n".format(i, cnt))
-    initial = numpy.zeros(31)
-    theta, err_rate, prec, rec, f1 = run_all(cnt, data, initial, TRAINING_ITERATIONS, verbose = False)
+    _, _, err_rate, prec, rec, f1 = run_all(data, verbose = False)
+    stderr.write("Error rate: {}%\n".format(err_rate * 100))
     serr += err_rate
     sprec += prec
     srec += rec

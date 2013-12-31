@@ -1,16 +1,8 @@
-from collections import namedtuple
 import random
 
 import numpy
 
-# Dataset entry
-Entry = namedtuple("Entry", ["id", "correct", "features"])
-
-class Result:
-    FN = "False negative"
-    FP = "False positive"
-    TN = "True negative"
-    TP = "True positive"
+from common import *
 
 # splits data set in test set and training set according of sizes test_cnt and train_cnt accordingly
 def split_data(data_set, train_cnt, test_cnt):
@@ -56,18 +48,3 @@ def calculate_results(test_set, test_ans):
             else:
                 results.append(Result.TP)
     return results
-
-def calculate_error_rate(results):
-    fp = results.count(Result.FP)
-    fn = results.count(Result.FN)
-    return (fp + fn) / len(results)
-
-def calculate_precision(results):
-    tp = results.count(Result.TP)
-    fp = results.count(Result.FP)
-    return tp / (tp + fp)
-
-def calculate_recall(results):
-    tp = results.count(Result.TP)
-    fn = results.count(Result.FN)
-    return tp / (tp + fn)

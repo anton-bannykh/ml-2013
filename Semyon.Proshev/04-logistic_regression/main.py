@@ -53,22 +53,17 @@ def get_w(data, c):
     evidence_length = len(data[0][0])
     w = numpy.zeros(evidence_length)
     norm_prev = 0
-    while True:
+    for it in range(100):
         w_prev = numpy.array(w)
         for (evidence, result) in data:
             grad = numpy.zeros(evidence_length)
-            for i in range(evidence_length):
-                v = result * numpy.inner(w, evidence)
-                if v < 20:
-                    grad[i] += g(-v, result * evidence[i])
+            grad += [g(-result * numpy.inner(w, evidence), result * evidence[i]) for i in range(evidence_length)]
             w += 0.01 * (grad + c * w)
         norm = numpy.sqrt(numpy.inner(w - w_prev, w - w_prev))
         if norm_prev < norm and norm_prev != 0:
             break
         else:
             norm_prev = norm
-        if norm < 0.1:
-            break
     return w
 
 def g(x, c):

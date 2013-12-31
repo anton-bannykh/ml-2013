@@ -38,7 +38,9 @@ class Perceptron:
 
 
 def get_untraining_perceptron(entry_num):
-    import random as r
+    import random
 
-    weights = [r.gauss(0, 0.01) for i in range(entry_num + 1)]
+    random.seed(1234)
+
+    weights = [random.gauss(0, 0.01) for i in range(entry_num + 1)]
     return Perceptron(weights)

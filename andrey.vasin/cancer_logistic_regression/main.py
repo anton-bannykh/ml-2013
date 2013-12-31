@@ -1,14 +1,13 @@
 from cancer_common.reader import *
-from cancer_svm.svm import *
-from cancer_svm.kernel import *
+from cancer_logistic_regression.logistic_regression import *
 
 def get_best_constant(x, y, parts):
     part_size = int(len(x) / parts)
     minEout = 1
     best_const = 1
 
-    for deg in range(-5, 20):
-        const = (2.0) ** (deg)
+    for deg in range(0, 10):
+        const = (1.0 / 3.0) ** (deg)
         print(deg)
         Eout = 0
 
@@ -19,11 +18,8 @@ def get_best_constant(x, y, parts):
             training_set_x = x[:i * part_size] + x[(i + 1) * part_size:]
             training_set_y = y[:i * part_size] + y[(i + 1) * part_size:]
 
-            #w, b = get_w(training_set_x, training_set_y, const)
-            #prediction = predict(check_set_x, w, b)
-
-            lagrange = get_lagrange_coef_reg(training_set_x, training_set_y, const, inner_product_kernel)
-            prediction = kernel_predict(check_set_x, training_set_x, training_set_y, lagrange, inner_product_kernel)
+            w = get_w_logistic_regression(training_set_x, training_set_y, const)
+            prediction = predict_logistic_regression(check_set_x, w)
 
             misclassified = 0
             for j in range(len(check_set_x)):
@@ -40,7 +36,7 @@ def get_best_constant(x, y, parts):
 TEST_PERCENT = 0.2
 PARTS = 10
 
-x, y = get_data()
+x, y = get_scaled_data()
 test_size = int(len(x) * TEST_PERCENT)
 
 check_set_x = x[:test_size]
@@ -51,11 +47,8 @@ training_set_y = y[test_size:]
 
 const = get_best_constant(training_set_x, training_set_y, PARTS)
 
-#w, b = get_w(training_set_x, training_set_y, const)
-#prediction = predict(training_set_x, w, b)
-
-lagrange = get_lagrange_coef_reg(training_set_x, training_set_y, const, inner_product_kernel)
-prediction = kernel_predict(training_set_x, training_set_x, training_set_y, lagrange, inner_product_kernel)
+w = get_w_logistic_regression(training_set_x, training_set_y, const)
+prediction = predict_logistic_regression(training_set_x, w)
 
 misclassified = 0
 for j in range(len(training_set_x)):
@@ -63,9 +56,7 @@ for j in range(len(training_set_x)):
         misclassified += 1
 Ein = misclassified / len(training_set_x)
 
-#prediction = predict(check_set_x, w, b)
-
-prediction = kernel_predict(check_set_x, training_set_x, training_set_y, lagrange, inner_product_kernel)
+prediction = predict_logistic_regression(check_set_x, w)
 
 # 'tp' — true positive
 # 'tn' — true negative

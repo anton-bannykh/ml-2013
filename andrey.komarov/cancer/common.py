@@ -2,9 +2,9 @@ import numpy
 from collections import Counter, namedtuple
 
 accurancy = lambda res : (res.tp + res.tn) / (res.tp + res.tn + res.fp + res.fn)
-precision = lambda res : res.tp / (res.tp + res.fp)
-recall = lambda res : res.tp / (res.tp + res.fn)
-f1 = lambda res : 2 * precision(res) * recall(res) / (precision(res) + recall(res))
+precision = lambda res : 0 if res.tp + res.fp == 0 else res.tp / (res.tp + res.fp)
+recall = lambda res : 0 if res.tp + res.fn == 0 else res.tp / (res.tp + res.fn)
+f1 = lambda res : 0 if res.tp == 0 else 2 * precision(res) * recall(res) / (precision(res) + recall(res))
 
 def checkClassifier(classifier, X, y):
     t = {(1, 1) : 'tp', (-1, -1) : 'tn', (1, -1) : 'fn', (-1, 1) : 'fp'}

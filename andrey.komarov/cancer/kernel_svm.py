@@ -12,14 +12,16 @@ polynomialKernel = lambda x, y: (numpy.dot(x, y) + 1) ** 2
 
 # Уныние. Перевод с псевдокода на питон :(
 def mkKernelSVMClassifier(C, K):
-    def train(X, y, iterations=20, eps=1e-5):
+    def train(X, y, iterations=50, eps=1e-7):
+        Xm = X.mean(axis=(0))
+        # X = (X - Xm) / Xm
         n, m = X.shape
         a = numpy.zeros(m)
         b = 0
         def f(x):
-            return sum(ai * yi * K(xi, x) for ai, yi, xi in zip(a, y, X)) + b
+            return sum(ai * K(xi, x) for ai, yi, xi in zip(a, y, X)) + b
         it, it2 = 0, 0
-        while it < iterations and it2 < 100:
+        while it < iterations and it2 < 1000:
             changed = False
             for i in range(m):
                 Ei = f(X[i]) - y[i]

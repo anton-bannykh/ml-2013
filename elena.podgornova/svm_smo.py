@@ -11,8 +11,8 @@ def train(x, y, c, kernel, tol, mp):
 	a, b = numpy.zeros(it), 0
 	p = 0
 	def f(i):
-#		return numpy.dot(a * y, k[i]) + b
-		return numpy.dot(a, k[i]) + b
+		return numpy.dot(a * y, k[i]) + b
+#		return numpy.dot(a, k[i]) + b
 	while (p < mp):
 		ca = 0
 		for i in range(it):
@@ -55,8 +55,8 @@ def train(x, y, c, kernel, tol, mp):
 
 def test(train_x, train_y, a, b, x, y, kernel):
 	def f(xt):
-#		return 1 if (b + sum([a[i]*train_y[i]*kernel(train_x[i],xt) for i in range(len(train_y))])) > 0 else -1
-		return 1 if (b + sum([a[i]*kernel(train_x[i],xt) for i in range(len(train_y))])) > 0 else -1
+		return 1 if (b + sum([a[i]*train_y[i]*kernel(train_x[i],xt) for i in range(len(train_y))])) > 0 else -1
+#		return 1 if (b + sum([a[i]*kernel(train_x[i],xt) for i in range(len(train_y))])) > 0 else -1
 	res = [numpy.zeros(2),numpy.zeros(2)]
 	for i in range(len(x)):
 		tr = f(x[i])
@@ -79,7 +79,7 @@ def get_c(x, y, kernel):
 	train_x, train_y, test_x, test_y = x[:b], y[:b], x[b:], y[b:]
 	for deg in range(-5,3):
 		c = 2. ** deg
-		a, b = train(train_x, train_y, c, kernel, 1e-3, 100)
+		a, b = train(train_x, train_y, c, kernel, 1e-3, 50)
 		p, r = test(train_x, train_y, a, b, test_x, test_y, kernel)
 		f1 = 2 * p * r/ (p + r)
 		if f1 > bf1:

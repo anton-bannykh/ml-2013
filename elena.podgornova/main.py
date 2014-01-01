@@ -4,6 +4,7 @@ import svm
 import svm_smo
 import kernels
 import lr
+import nw
 
 def split(data, part):
 	temp_data = [x.split(',') for x in data]
@@ -13,6 +14,23 @@ def split(data, part):
 	train_y = [1.0 if x[1] == 'M' else -1.0 for x in temp_data[:b]]
 	test_x = [numpy.array([float(i) for i in x[2:]]) for x in temp_data[b:]]
 	test_y = [1.0 if x[1] == 'M' else -1.0 for x in temp_data[b:]]
+	maxx = train_x[0][:]
+	minx = train_x[0][:]
+	m, r = numpy.zeros(len(train_x[0])), numpy.zeros(len(train_x[0]))
+	for j in range(len(train_x[0])):
+		maxx, minx = train_x[0][j], train_x[0][j]
+		for i in range(len(train_x)):
+			maxx = max(maxx, train_x[i][j])
+			minx = min(minx, train_x[i][j])
+		for i in range(len(test_x)):
+			maxx = max(maxx, test_x[i][j])
+			minx = min(minx, test_x[i][j])
+		m = (maxx + minx) / 2
+		r = (maxx - minx) / 2
+		for i in range(len(train_x)):
+			train_x[i][j] = (train_x[i][j] - m) / r
+		for i in range(len(test_x)):
+			test_x[i][j] = (test_x[i][j] - m) / r	
 	return train_x, train_y, test_x, test_y
 
 def main():
@@ -23,6 +41,16 @@ def main():
 
 data = main()
 train_x, train_y, test_x, test_y = split(data, 0.4)
+
+c = nw.get_c(train_x, train_y)
+w1, w2 = nw.train(train_x, train_y, c)
+pnw, rnw = nw.test(test_x, test_y, w1, w2)
+enw = 2 * pnw * rnw / (pnw + rnw)
+
+print("nw:")
+print("\tF1 %.3f " %enw)
+print("\tprecision %.3f, recall %.3f" %(pnw, rnw))
+
 
 c = svm.get_c(train_x, train_y)
 tsvm = svm.train(train_x, train_y, c)
@@ -42,7 +70,7 @@ print("\tF1 %.3f " %ep)
 print("\tprecision %.3f, recall %.3f" %(pp, rp))
 
 c = svm_smo.get_c(train_x, train_y, kernels.poly)
-a, b = svm_smo.train(train_x, train_y, c, kernels.poly, 1e-3, 50)
+a, b = svm_smo.train(train_x, train_y, c, kernels.poly, 1e-3, 100)
 psmo, rsmo = svm_smo.test(train_x, train_y, a, b, test_x, test_y, kernels.poly)
 esmo = 2 * psmo*rsmo/(psmo + rsmo)
 
@@ -51,7 +79,7 @@ print("\tF1 %.3f " %esmo)
 print("\tprecision %.3f, recall %.3f" %(psmo, rsmo))
 
 c = svm_smo.get_c(train_x, train_y, kernels.gauss)
-a, b = svm_smo.train(train_x, train_y, c, kernels.gauss, 1e-3, 50)
+a, b = svm_smo.train(train_x, train_y, c, kernels.gauss, 1e-3, 100)
 psmo, rsmo = svm_smo.test(train_x, train_y, a, b, test_x, test_y, kernels.gauss)
 esmo = 2 * psmo*rsmo/(psmo + rsmo)
 

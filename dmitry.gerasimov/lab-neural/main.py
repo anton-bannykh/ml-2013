@@ -34,7 +34,7 @@ if not os.path.exists(DATA_DIR):
 if not os.path.exists(TMP_DIR):
     os.makedirs(TMP_DIR)
 
-#get_data(DATA_URL, DATA_LOCAL_PATH)
+get_data(DATA_URL, DATA_LOCAL_PATH)
 stderr.write("Data set fetched to the file {}\n".format(DATA_LOCAL_PATH))
 stderr.write("Comment the line 39 of main.py to prevent downloading during the further runs\n")
 

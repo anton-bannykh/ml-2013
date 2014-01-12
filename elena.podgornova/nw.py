@@ -50,25 +50,26 @@ def test(x, y, w1, w2):
 	for j in range(len(x)):
 		x[j] = numpy.append(x[j], [1])
 	res = [numpy.zeros(2),numpy.zeros(2)]
-	for t in range(len(x)):
-		o1 = h(net(w1, x[t]))
-		o1 = numpy.append(o1, [1])
-		o2 = h(net(w2, o1))
-#		print o2, y[t]
-		if o2[0] > 0.5:
-			tr = 1
-		else:
-			tr = -1 
-		if y[t] == 1:
-			if tr == 1:
-				res[0][0]+=1
-			else :
-				res[0][1]+=1
-		else:
-			if tr == 1:
-				res[1][0]+=1
+	while res[0][0] + res[0][1] == 0 or res[0][0] + res[1][0] == 0:
+		res = [numpy.zeros(2),numpy.zeros(2)]
+		for t in range(len(x)):
+			o1 = h(net(w1, x[t]))
+			o1 = numpy.append(o1, [1])
+			o2 = h(net(w2, o1))
+			if o2[0] > 0.5:
+				tr = 1
 			else:
-				res[1][1]+=1
+				tr = -1 
+			if y[t] == 1:
+				if tr == 1:
+					res[0][0]+=1
+				else :
+					res[0][1]+=1
+			else:
+				if tr == 1:
+					res[1][0]+=1
+				else:
+					res[1][1]+=1
 	return res[0][0]/(res[0][0] + res[0][1]), res[0][0]/(res[0][0] + res[1][0])
 
 def get_c(x, y):
@@ -83,7 +84,7 @@ def get_c(x, y):
 		f1 = 2 * p * r/ (p + r)
 		if f1 > bf1:
 			bf1, bc = f1, c
-		print p, r
-		print f1
+#		print p, r
+#		print f1
 		c += 10
 	return bc

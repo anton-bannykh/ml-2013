@@ -19,18 +19,20 @@ def g(x, x0, y):
 def test(x, y, tmp):
 	t, t0 = tmp[:-1], tmp[-1]
 	res = [numpy.zeros(2),numpy.zeros(2)]
-	for i in range(len(x)):
-		tr = g(t, t0, x[i])
-		if y[i] == 1:
-			if tr == 1:
-				res[0][0]+=1
-			else :
-				res[0][1]+=1
-		else:
-			if tr == 1:
-				res[1][0]+=1
+	while res[0][0] + res[0][1] == 0 or res[0][0] + res[1][0] == 0:
+		res = [numpy.zeros(2),numpy.zeros(2)]
+		for i in range(len(x)):
+			tr = g(t, t0, x[i])
+			if y[i] == 1:
+				if tr == 1:
+					res[0][0]+=1
+				else :
+					res[0][1]+=1
 			else:
-				res[1][1]+=1
+				if tr == 1:
+					res[1][0]+=1
+				else:
+					res[1][1]+=1
 	return res[0][0]/(res[0][0] + res[0][1]), res[0][0]/(res[0][0] + res[1][0])
 
 def get_c(x, y):

@@ -58,18 +58,20 @@ def test(train_x, train_y, a, b, x, y, kernel):
 		return 1 if (b + sum([a[i]*train_y[i]*kernel(train_x[i],xt) for i in range(len(train_y))])) > 0 else -1
 #		return 1 if (b + sum([a[i]*kernel(train_x[i],xt) for i in range(len(train_y))])) > 0 else -1
 	res = [numpy.zeros(2),numpy.zeros(2)]
-	for i in range(len(x)):
-		tr = f(x[i])
-		if y[i] == 1:
-			if tr == 1:
-				res[0][0]+=1
-			else :
-				res[0][1]+=1
-		else:
-			if tr == 1:
-				res[1][0]+=1
+	while res[0][0] + res[0][1] == 0 or res[0][0] + res[1][0] == 0:
+		res = [numpy.zeros(2),numpy.zeros(2)]
+		for i in range(len(x)):
+			tr = f(x[i])
+			if y[i] == 1:
+				if tr == 1:
+					res[0][0]+=1
+				else :
+					res[0][1]+=1
 			else:
-				res[1][1]+=1
+				if tr == 1:
+					res[1][0]+=1
+				else:
+					res[1][1]+=1
 	return res[0][0]/(res[0][0] + res[0][1]), res[0][0]/(res[0][0] + res[1][0])	
 	
 def get_c(x, y, kernel):

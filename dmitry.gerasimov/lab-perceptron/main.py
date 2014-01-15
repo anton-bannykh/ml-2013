@@ -4,6 +4,8 @@ from sys import stdin, stdout, stderr
 import numpy
 
 from bcwd import *
+import common
+from common import *
 from perceptron import *
 
 DATA_DIR = "data"
@@ -39,6 +41,7 @@ stderr.write("Comment the line 35 of main.py to prevent downloading during the f
 data = load_data(DATA_LOCAL_PATH)
 assert len(data) == DATA_SIZE # there should be 569 instances according to the set description
 
+data = add_bias(data)
 
 def run_all(it, data, initial, iterations, verbose = False):
     test_size = int(DATA_SIZE * TEST_SET_FRACTION)
@@ -64,26 +67,36 @@ def run_all(it, data, initial, iterations, verbose = False):
         if verbose:
             test_ans = test_perceptron(test_set, theta)
             results = calculate_results(test_set, test_ans)
-            stderr.write("Step {}: classification error is {}%\n".format(i, calculate_error_rate(results) * 100))
+            stderr.write("Step {}: classification error is {}%\n".format(i, error_rate(results) * 100))
 
     test_ans = test_perceptron(test_set, theta)
     results = calculate_results(test_set, test_ans)
 
-    err_rate = calculate_error_rate(results)
-    precision = calculate_precision(results)
-    recall = calculate_recall(results)
+    err_rate = error_rate(results)
+    prec = precision(results)
+    rec = recall(results)
+    f1 = f1score(results)
 
-    return (theta, err_rate, precision, recall)
+    return (theta, err_rate, prec, rec, f1)
 
 # random.seed(0) # uncomment to make the program deterministic
 
 cnt = 100
-s = 0.0
+serr = 0.0
+sprec = 0.0
+srec = 0.0
+sf1 = 0.0
 
 for i in range(cnt):
     stderr.write("Running... {}/{}\n".format(i, cnt))
     initial = numpy.zeros(31)
-    theta, err_rate, prec, rec = run_all(cnt, data, initial, TRAINING_ITERATIONS, verbose = False)
-    s += err_rate
+    theta, err_rate, prec, rec, f1 = run_all(cnt, data, initial, TRAINING_ITERATIONS, verbose = False)
+    serr += err_rate
+    sprec += prec
+    srec += rec
+    sf1 += f1
 
-print("Average error rate ({} runs) is {}%".format(cnt, s / cnt * 100))
+print("Average error rate ({} runs) is {}%".format(cnt, serr / cnt * 100))
+print("Average precision ({} runs) is {}%".format(cnt, sprec / cnt * 100))
+print("Average recall ({} runs) is {}%".format(cnt, srec / cnt * 100))
+print("Average f1 score ({} runs) is {}".format(cnt, sf1 / cnt))

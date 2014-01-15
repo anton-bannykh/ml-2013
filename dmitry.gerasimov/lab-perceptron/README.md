@@ -1,19 +1,22 @@
 Linear perceptron training home assignment
 
-**perceptron.py**: generic perceptron training algorithm
+**common/bcwd.py**: BCWD data set related routines
 
-**bcwd.py**: BCWD data set related routines
+**common/common.py**: random useful machine learning related functions
 
-**main.py**:
+**lab-perceptron/perceptron.py**: generic perceptron training algorithm
+
+**lab-perceptron/main.py**:
 
 1. downloads the BCWD dataset
 2. splits into training and test set (using the given fraction, 0.10 currently)
 3. runs given number of perceptron training algorithm
 4. calculates the error rate, precision and recall
-5. averages error rate over the given number of iteration and prints it out
+5. averages error rate, precision, recall and f1 score over the given number of iteration and prints them out
 
 Current error rate averaged over 100 runs is about 11 %.
 
-You need `python3` and `numpy` to run the program.
+You'll need `python3` and `numpy` to run the program.
 
-Run as `python3 main.py`.
+To run, enter the `dmitry.gerasimov` directory and run `./run.sh lab-perceptron` (this script sets up python environment
+to use files in the `common` dir shared among home assignments).

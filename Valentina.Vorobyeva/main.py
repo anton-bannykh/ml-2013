@@ -18,7 +18,7 @@ def test(x):
     x[0] = 1
     for i in range(len(x)):
         x[i] = float(x[i])
-    o = 0
+    o = 0.
     for i in range(len(x)):
         o += perc[i] * x[i]
     if o >= 0:
@@ -37,7 +37,7 @@ def test(x):
 
 def main():
     learn.learn()
-    print(learn.perc)
+    #print(learn.perc)
     f = open('wdbcl.data', 'rU')
     datas = []
     for line in f:
@@ -53,16 +53,12 @@ def main():
     print "fn", fn
     print "fp", fp
 
-    if tp == 0 and fp == 0:
-        precis = 0.0
-    else:
-        precis = float(tp) / (tp + fp)
-    if tp == 0 and fn == 0:
-        rec = 0.0
-    else:
-        rec = float(tp) / (tp + fn)
-    print ("Precision = " + str(precis))
-    print ("Recall = " + str(rec))
+    p = float(tp) / (tp + fp)
+    r = float(tp) / (tp + fn)
+    f1 = 2 * p * r / (p + r)
+    print ("Precision = " + str(p))
+    print ("Recall = " + str(r))
+    print ("F1-metric = " + str(f1))
 
     f.close()
 

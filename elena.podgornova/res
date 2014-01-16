@@ -1,15 +1,19 @@
+nw:
+	F1 0.977 
+	precision 0.992, recall 0.962
 svm:
-	F1 0.963 
-	precision 0.909, recall 0.963
+	F1 0.992 
+	precision 0.953, recall 0.992
 lp:
-	F1 0.873 
-	precision 0.818, recall 0.936
+	F1 0.961 
+	precision 0.953, recall 0.968
 svm_smo_poly:
-	F1 0.862 
-	precision 0.895, recall 0.831
+	F1 0.976 
+	precision 0.953, recall 1.000
 svm_smo_gauss:
-	F1 0.767 
-	precision 0.748, recall 0.787
+	F1 0.883 
+	precision 0.883, recall 0.883
 lr:
-	F1 0.932 
-	precision 0.916, recall 0.949
+	F1 0.984 
+	precision 0.977, recall 0.992
+

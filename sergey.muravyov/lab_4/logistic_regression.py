@@ -1,104 +1,123 @@
-import numpy
-from math import exp
-from numpy.numarray import zeros
+import math
+import numpy as np
 from urllib.request import urlopen
 
-def llength(data):
-    x, _ = data[0]
-    return len(x)
+def scale(x):
+    x_min, x_max = np.array([1e10] * len(x[0])), np.zeros(len(x[0]))
+    for xc in x:
+        for i in range(len(xc)):
+            x_min[i] = min(xc[i], x_min[i])
+            x_max[i] = max(xc[i], x_max[i])
+    for xc in x:
+        for i in range(len(xc)):
+            if (x_max[i] != x_min[i]):
+                xc[i] = (xc[i] - x_min[i]) / (x_max[i] - x_min[i])
+            else:
+                xc[i] = 1
+    return x;
 
 def get_data():
-    result = []
-
+    x, y = [], []
     file = urlopen("http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data")
     for line in file.readlines():
-        array = line.decode("utf-8").split(',')
-        result.append(([1.0] + [float(f) for f in array[2:]], 1 if array[1] == "M" else -1))
-
-    rlen = llength(result)
-    x_min, x_max = numpy.array([1e10] * rlen), zeros(rlen)
-    for (x, _) in result:
-        for i in range(rlen):
-            x_min[i] = min(x_min[i], x[i])
-            x_max[i] = max(x_max[i], x[i])
-    for (x, _) in result:
-        for i in range(rlen):
-            x[i] = (x[i] - x_min[i]) / (x_max[i] - x_min[i]) if x_max[i] != x_min[i] else 1
-
-    return result
-
-
-def norm(x):
-    return numpy.sqrt(numpy.inner(x, x))
-
-def function(x, c=1):
-    return c / (1 + exp(x))
-
-def calculate_error(data, w):
-    count = 0
-    for (x, y) in data:
-        cl = 1.0 if function(-numpy.inner(x, w)) >= 0.5 else -1.0
-        if cl != y:
-            count += 1
-    return count / len(data)
-
-def linear_regression_w(data, c, exp_value=20, eps=0.1, rate=0.01):
-    m = llength(data)
-    w = numpy.zeros(m)
-    dif_prev = 0
-    while True:
-        w_prev = numpy.array(w)
-        for (x, y) in data:
-            grad = numpy.zeros(m)
-            for j in range(m):
-                v = y * numpy.inner(w, x)
-                if v < exp_value:
-                    grad[j] += function(v, y * x[j])
-                if j != 0:
-                    grad[j] += c * w[j]
-            w += rate * grad
-        dif_norm = norm(w - w_prev)
-        if dif_prev < dif_norm and dif_prev != 0:
-            break
+        input = line.decode('utf-8').strip().split(',')
+        if input[1] == 'M':
+            y.append(1.0)
         else:
-            dif_prev = dif_norm
-        if dif_norm < eps:
-            break
+            y.append(-1.0)
+        num = [float(x) for x in input[2:]]
+        num.insert(0, 1.0)
+        num = np.array(num)
+        x.append(num)
+    file.close()
+    x = scale(x)
+    return shuffle(x, y) 
 
+def shuffle(x, y):
+    tmp = list(zip(x, y))
+    np.random.shuffle(tmp)
+    x1, y1 = [], []
+    for i in range(len(tmp)):
+        x1.append(tmp[i][0])
+        y1.append(tmp[i][1])
+    return x1, y1
+
+def stop_Q(w1, w2, d):
+    dif = w2 - w1
+    norm = np.sqrt(np.inner(dif, dif))
+    flag = 0
+    if d < norm and d != 0:
+        flag = 1
+    else:
+        d = norm
+    if (norm < 0.1) and not (flag == 0):
+         flag = 1
+    return flag, d
+
+def get_w(x, y, reg):
+    wlen = len(x[0])
+    w = np.zeros(wlen)
+    dif_old = 0
+    while (True):
+        w_old = np.array(w)
+        xc, yc = shuffle(x, y)
+        xclen = len(xc)
+        for i in range(xclen):            
+            grad = np.zeros(wlen)
+            for j in range(wlen):
+                margin = yc[i] * np.inner(w, xc[i])
+                if margin < 20:
+                    grad[j] += (1 / (1 + math.exp(margin))) * yc[i] * xc[i][j]
+                if j > 0:
+                    grad[j] += w[j] * reg
+            w += grad * 0.01
+            
+        flag, dif_old = stop_Q(w_old, w, dif_old)
+        if flag == 1:
+            break
     return w
 
-def cross_validate(data, c, n=10):
-    step = len(data) // n
-    result = 0
-    for i in range(0, len(data), step):
-        w = linear_regression_w(data[i + step:] + data[:i], c)
-        result += calculate_error(data[i:i + step], w)
-    return result / n
+def classification(x, y, pr):
+    mc = 0
+    for j in range(len(x)):
+        if y[j] != pr[j]:
+            mc += 1
+    return mc / len(x)
 
+def predict_logreg(x_out, w):
+    return [-1.0 if 1 / (1 + math.exp(-np.inner(x, w))) < 0.5 else 1.0 for x in x_out]
 
-def get_constant(data, base=3, n=10):
-    result, min_error = 1, 1
+def split_xy(x, y, i, p):
+    return x[i * p: (i + 1) * p], x[:i * p] + x[(i + 1) * p:], y[i * p: (i + 1) * p], y[:i * p] + y[(i + 1) * p:]
 
-    for d in range(n):
-        c = base ** -d
-        error = cross_validate(data, c)
-        print("current deg = %d, current const = %f, current err = %f" % (d, c, error))
-        if error < min_error:
-            min_error = error
-            result = c
-
-    return result
+def get_c(x, y, parts):
+    part_size = int(len(x) / parts)
+    best_C, best_err = 0, 10
+    for d in range(0, 10):
+        C = 3.0 ** -d
+        print(C)
+        cur_err = 0
+        for i in range(parts):
+            test_x, train_x, test_y, train_y = split_xy(x, y, i, part_size)
+            w = get_w(train_x, train_y, C)
+            pr = predict_logreg(test_x, w)
+            cur_err += classification(test_x, test_y, pr)/parts
+        if best_err > cur_err:
+            best_err = cur_err
+            best_C = C
+    return best_C
 
 def main():
-    data = get_data()
-    numpy.random.shuffle(data)
-    test_len = int(len(data) * 0.2)
-    xs, ys = data[test_len:], data[:test_len]
+    x, y = get_data()
+    bound = int(len(x)*0.2)
+    train_x, train_y, test_x, test_y = x[bound:], y[bound:], x[:bound], y[:bound]
+    C = get_c(train_x, train_y, 10)
+    w = get_w(train_x, train_y, C)
+    pr = predict_logreg(train_x, w)
+    err = classification(train_x, train_y, pr)
+    
+    print("regularization constant = %6.5f" % C)
+    print('average error = %6.2f' % err)
 
-    c = get_constant(xs)
-    e = calculate_error(ys, w)
-    print('regularization constant = %f' % c)
-    print('error = %6.2f' % (100 * e))
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

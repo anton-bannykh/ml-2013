@@ -63,7 +63,6 @@
 - feedforward neural network,
 - backpropagation.
 
-
 [cancer]: http://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29
 [SMO]: http://cs229.stanford.edu/materials/smo.pdf
 [logistic]: http://en.wikipedia.org/wiki/Logistic_function

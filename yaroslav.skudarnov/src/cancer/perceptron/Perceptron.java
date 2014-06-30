@@ -14,7 +14,7 @@ public class Perceptron {
     public static final int FEATURES = 30;
     public static int TESTSAMPLESIZE, TRAININGSAMPLESIZE;
     private static int truePositive, falsePositive, trueNegative, falseNegative;
-    private static final int percent = 40;
+    private static final int percent = 15;
 
     static ArrayList<Double> weights;
 
@@ -37,10 +37,6 @@ public class Perceptron {
         for (int i = 0; i < FEATURES; ++i) {
             weights.add((double) 0);
         }
-    }
-
-    private static boolean wrongClassified(int result, ArrayList<Double> weights, ArrayList<Double> features) {
-        return result != algo(weights, features);
     }
 
     private static void train() {
@@ -82,6 +78,10 @@ public class Perceptron {
         } while (changing);
 
         weights = (ArrayList<Double>) bestWeights.clone();
+    }
+
+    private static boolean wrongClassified(int result, ArrayList<Double> weights, ArrayList<Double> features) {
+        return result != algo(weights, features);
     }
 
     private static ArrayList<Double> add(ArrayList<Double> weights, ArrayList<Double> features) {

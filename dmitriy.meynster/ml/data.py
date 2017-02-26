@@ -50,6 +50,9 @@ def split_xy(data):
 def join_xy(data_x, data_y):
     return np.concatenate((data_x, data_y), axis=1)
 
+def scale_features(data):
+    return data / abs(np.outer(np.ones(len(data)), data.max(axis=0)))
+
 def dataset_block(dataset, withOnes=True):
     x, y = dataset
     if withOnes:
